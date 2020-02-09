@@ -2,7 +2,7 @@ CC=g++
 CXXFLAGS=
 LDFLAGS=
 EXEC=simulation
-SRC= simulation.cc parser.cc lexer.cc especemoleculaire.cc reaction.cc
+SRC= parser.cc lexer.cc especemoleculaire.cc reaction.cc simulation.cc
 OBJ= $(SRC:.cc=.o)
 
 all: $(EXEC)
@@ -10,7 +10,9 @@ all: $(EXEC)
 simulation: $(OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
-parser.cc: parser.y especemoleculaire.h reaction.h
+%.cc: %.h
+
+parser.cc: parser.y especemoleculaire.h reaction.h simulation.h
 	bison -d -o $@ $<
 
 lexer.cc: lexer.l parser.h
@@ -21,3 +23,6 @@ lexer.cc: lexer.l parser.h
 
 clean:
 	rm -rf *.o
+	rm -rf parser.cc
+	rm -rf parser.h
+	rm -rf lexer.cc

@@ -1,8 +1,8 @@
 %{
     #include <iostream>
-    #include <map>
-    #include "especemoleculaire.h"
     #include "reaction.h"
+    #include "simulation.h"
+    
     using namespace std;
 
 
@@ -13,6 +13,7 @@
     void yyerror(const char *s);
 
     map<char*, EspeceMoleculaire> especes;
+    int diametre;
 %}
 
 %union {
@@ -48,7 +49,7 @@ listesp: IDENT { char* id = $1; especes[id] = EspeceMoleculaire(id);/*on ajoute 
     | IDENT COMMA listesp { char* id = $1; especes[id] = EspeceMoleculaire(id); }
     ;
 
-diametre: DIAM EQ INT SEMI { const int DIAMETRE = $3; }
+diametre: DIAM EQ INT SEMI { diametre = $3; }
     ;
 
 body: instr body {}
@@ -90,6 +91,7 @@ reaction: IDENT sr ARROW IDENT sr prob SEMI {
 
         Reaction r(reactifs, produits, proba);
 
+        //TODO:
         // for (int i = 0; i< size_reac; i++) {
         //     reactifs[i].addReaction(r);
         // }
@@ -114,7 +116,19 @@ init: INIT LP IDENT RP EQ INT SEMI { (especes.find($3)->second).setNbCopies($6);
 
 %%
 
-void parse(char* filename) {
+void checkReaction() {
+    for (auto& tpl : especes) {
+        EspeceMoleculaire esp = tpl.second;
+        vector<Reaction> reactions = esp.getReaction();
+        float total = 0.0;
+        for (int i=0; i<reactions.size(); i++)
+            total += reactions[i].getProba();
+        if (total > 1.0)
+            throw IncorrectProbabilityRates(esp.getNom());
+    }
+}
+
+file_vars parse(char* filename) {
     FILE *file = fopen(filename, "r");
     if (!file) {
         cout << "Can't open " << filename << endl;
@@ -122,6 +136,15 @@ void parse(char* filename) {
     }
     yyin = file;
     yyparse();
+    try {
+        checkReaction();
+    } catch (exception& e) {
+        cerr << e.what() << endl;
+    }
+    file_vars globals;
+    globals.especes = especes;
+    globals.diametre = diametre;
+    return globals;
 }
 
 void yyerror(const char *s) {

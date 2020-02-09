@@ -2,8 +2,10 @@
 #define ESPECEMOLECULAIRE_H
 
 #include <stdio.h>
+#include <string>
 #include <string.h>
 #include <vector>
+#include <exception>
 
 
 class Reaction;
@@ -32,9 +34,21 @@ class EspeceMoleculaire {
         int getNbCopies() { return nbCopies; }
         void setNbCopies(float f) { nbCopies = 6.02214076e23*f; }
         
+        //FIXME: ?
         // void addReaction (Reaction r) { reac_assoc.push_back(r); }
-        Reaction getReaction ();
+        std::vector<Reaction> getReaction () {}
 
+};
+
+class IncorrectProbabilityRates : public std::exception {
+    private:
+        std::string esp_name;
+    public:
+        IncorrectProbabilityRates(const char* esp_name_) { esp_name = esp_name_; }
+
+        virtual const char* what() const throw() {
+            return ("The sum of the reactions probabilities is greater than 1 for " + esp_name).c_str();
+        }
 };
 
 #include "reaction.h"
