@@ -16,7 +16,7 @@ class EspeceMoleculaire {
         float vitesse;
         int taille;
         int nbCopies;
-        // std::vector<Reaction> reac_assoc;
+        std::vector<Reaction> reac_assoc;
 
     public:
         EspeceMoleculaire() {}
@@ -26,6 +26,8 @@ class EspeceMoleculaire {
             strcpy(nom,n);
         }
 
+        ~EspeceMoleculaire() { delete nom; }
+
         char* getNom() { return nom; }
         float getVitesse() { return vitesse; }
         void setVitesse(float v) { vitesse = v; }
@@ -34,9 +36,12 @@ class EspeceMoleculaire {
         int getNbCopies() { return nbCopies; }
         void setNbCopies(float f) { nbCopies = 6.02214076e23*f; }
         
-        //FIXME: ?
-        // void addReaction (Reaction r) { reac_assoc.push_back(r); }
-        std::vector<Reaction> getReaction () {}
+        void addReaction (Reaction r);
+        std::vector<Reaction> getReactions () { return reac_assoc; }
+        Reaction getReaction (int i);
+        
+        /* Retourne la position de la reaction dans le vector associant l'espece moleculaire courante et une espece moleculaire donnee */
+        int getPosActualReaction (EspeceMoleculaire em);
 
 };
 

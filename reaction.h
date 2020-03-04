@@ -15,8 +15,9 @@ class Reaction {
 
     public:
         Reaction () : proba(0.0) {};
-
         Reaction (EspeceMoleculaire*, EspeceMoleculaire*, float);
+
+        ~Reaction () { delete reactifs; delete produits;}
 
         EspeceMoleculaire* getReactifs () { return reactifs; }
         void setReactifs (EspeceMoleculaire* em) { reactifs = em; }
