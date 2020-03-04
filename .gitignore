@@ -1,5 +1,5 @@
 *.o
 simulation
 parser.cc
-parser.h
+parser.hh
 lexer.cc

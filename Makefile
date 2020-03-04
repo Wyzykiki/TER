@@ -15,7 +15,7 @@ simulation: $(OBJ)
 parser.cc: parser.y especemoleculaire.h reaction.h simulation.h
 	bison -d -o $@ $<
 
-lexer.cc: lexer.l parser.h
+lexer.cc: lexer.l parser.hh
 	flex -o$@ $<
 
 %.o : %.cc
@@ -24,5 +24,5 @@ lexer.cc: lexer.l parser.h
 clean:
 	rm -rf *.o
 	rm -rf parser.cc
-	rm -rf parser.h
+	rm -rf parser.hh
 	rm -rf lexer.cc
