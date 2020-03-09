@@ -16,7 +16,7 @@ class EspeceMoleculaire {
         float vitesse;
         int taille;
         int nbCopies;
-        std::vector<Reaction> reac_assoc;
+        std::vector<Reaction*> reac_assoc;
 
     public:
         EspeceMoleculaire() {}
@@ -36,9 +36,9 @@ class EspeceMoleculaire {
         int getNbCopies() { return nbCopies; }
         void setNbCopies(float f) { nbCopies = 6.02214076e23*f; }
         
-        void addReaction (Reaction r);
-        std::vector<Reaction> getReactions () { return reac_assoc; }
-        Reaction getReaction (int i);
+        void addReaction (Reaction* r);
+        std::vector<Reaction*>* getReactions () { return &reac_assoc; }
+        Reaction* getReaction (int i);
         
         /* Retourne la position de la reaction dans le vector associant l'espece moleculaire courante et une espece moleculaire donnee */
         int getPosActualReaction (EspeceMoleculaire em);
@@ -49,10 +49,13 @@ class IncorrectProbabilityRates : public std::exception {
     private:
         std::string esp_name;
     public:
-        IncorrectProbabilityRates(const char* esp_name_) { esp_name = esp_name_; }
+        IncorrectProbabilityRates(const char* esp_name_) { 
+            esp_name = esp_name_; 
+            esp_name = ("The sum of the reactions probabilities is greater than 1 for " + esp_name);
+        }
 
-        virtual const char* what() const throw() {
-            return ("The sum of the reactions probabilities is greater than 1 for " + esp_name).c_str();
+        const char* what() const throw() {
+            return esp_name.c_str();
         }
 };
 

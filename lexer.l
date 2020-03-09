@@ -9,6 +9,7 @@ flottant        [0-9]+.[0-9]+
 commentaire     "//".*"\n"
 
 %option noyywrap
+%option yylineno
 
 %%
 
@@ -38,6 +39,7 @@ commentaire     "//".*"\n"
 "init" return (INIT);
 "espece" return (ESPECE);
 "diametre" return (DIAM);
+[ \n\t] {}
 
 {ident} 	{   
 				char *valIdent = (char *)calloc(strlen(yytext)+1,sizeof(char));
