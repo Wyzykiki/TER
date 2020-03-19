@@ -26,6 +26,8 @@ class Reaction {
         void setReactifs (EspeceMoleculaire** em) { reactifs = em; }
         EspeceMoleculaire** getProduits () { return produits; }
         void setProduits (EspeceMoleculaire** em) { produits = em; }
+        int getNbReactifs();
+        int getNbProduits();
         float getProba () { return proba; }
         void setProba (float f) { proba = f; }
         friend std::ostream& operator<< (std::ostream &stream, const Reaction& r);

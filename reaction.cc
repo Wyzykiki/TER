@@ -11,6 +11,14 @@ Reaction::Reaction (EspeceMoleculaire** r, EspeceMoleculaire** p, int nbReac, in
         reactifs[i]->addReaction(this);
 }
 
+int Reaction::getNbReactifs() {
+    return this->nbReactifs;
+}
+
+int Reaction::getNbProduits() {
+    return this->nbProduits;
+}
+
 std::ostream& operator<< (std::ostream &stream, const Reaction &r) {
     stream<<r.reactifs[0]->getNom();
     if (r.nbReactifs == 2)
