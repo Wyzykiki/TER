@@ -16,6 +16,27 @@ populationCentered::~populationCentered() {
 
 void populationCentered::monoMolecule(Reaction* r) {
 
+	EspeceMoleculaire** reactifs = r->getReactifs();
+	EspeceMoleculaire** produits = r->getProduits();
+
+	int r1Amount = reactifs[0]->getNbCopies();
+
+	float propension = r1Amount * r->getProba();
+
+	int activeReactions = (int) propension;
+
+	srand(time(NULL));
+
+	float random = (float) rand()/RAND_MAX;
+
+	if (random < (propension - activeReactions))
+		activeReactions++;
+
+	reactifs[0]->setNbCopies(r1Amount - activeReactions);
+
+	for (int i=0; i< r->getNbProduits(); i++)
+		produits[i]->setNbCopies(produits[i]->getNbCopies() + activeReactions);	
+
 }
 
 void populationCentered::biMolecule(Reaction* r) {
