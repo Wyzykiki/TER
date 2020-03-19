@@ -34,7 +34,7 @@ class EspeceMoleculaire {
         int getTaille() { return taille; }
         void setTaille(int t) { taille = t; }
         int getNbCopies() { return nbCopies; }
-        void setNbCopies(float f) { nbCopies = 6.02214076e23*f; }
+        void setNbCopies(int n) { nbCopies = n; }
         
         void addReaction (Reaction* r);
         std::vector<Reaction*>* getReactions () { return &reac_assoc; }
@@ -42,6 +42,8 @@ class EspeceMoleculaire {
         
         /* Retourne la position de la reaction dans le vector associant l'espece moleculaire courante et une espece moleculaire donnee */
         int getPosActualReaction (EspeceMoleculaire em);
+
+        bool isDepleted();
 
 };
 

@@ -14,3 +14,8 @@ int EspeceMoleculaire::getPosActualReaction (EspeceMoleculaire em){
     }
     return -1;
 }
+
+
+bool EspeceMoleculaire::isDepleted() {
+    return this->nbCopies == 0;
+}
