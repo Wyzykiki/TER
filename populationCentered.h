@@ -33,7 +33,7 @@ private:
 
 public:
 
-	populationCentered(Reaction* reactions[], int nbReactions);
+	populationCentered(Reaction* reactions[], int nbReactions, float volume);
 	~populationCentered();
 
 	/** Examine chaque réaction de la simulation */

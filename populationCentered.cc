@@ -1,11 +1,12 @@
 #include "populationCentered.h"
 
-populationCentered::populationCentered(Reaction* reactions_[], int nbReactions) {
+populationCentered::populationCentered(Reaction* reactions_[], int nbReactions, float volume) {
 	this->reactions = new Reaction*[nbReactions];
 	for (int i=0; i<nbReactions; i++) {
 		this->reactions[i] = reactions_[i];
 	}
 	this->nbReactions = nbReactions;
+	this->volume = volume;
 	this->flipFlop = true;
 }
 
@@ -130,6 +131,9 @@ int main() {
 	EspeceMoleculaire* e2 = new EspeceMoleculaire("s");
 	EspeceMoleculaire* e3 = new EspeceMoleculaire("Es");
 
+	e1->setNbCopies(500);
+	e2->setNbCopies(200);
+
 	EspeceMoleculaire* reac[2];
 	reac[0] = e1;
 	reac[1] = e2;
@@ -138,15 +142,32 @@ int main() {
 	prod[0] = e3;
 
 
-	Reaction* r1 = new Reaction(reac, prod, 2, 1, 0.5);
+	Reaction* r1 = new Reaction(reac, prod, 2, 1, 0.2);
 	
-	Reaction* reacs[1];
+	EspeceMoleculaire* reac2[1];
+	reac2[0] = e3;
+
+	EspeceMoleculaire* prod2[2];
+	prod2[0] = e1;
+	prod2[1] = e2;
+
+	Reaction* r2 = new Reaction(reac2, prod2, 1, 2, 0.1);
+
+	Reaction* reacs[2];
 
 	reacs[0] = r1;
+	reacs[1] = r2;
 
-	populationCentered sim = populationCentered(reacs, 1);
+ 	float volume = 0.523598;
 
-	// sim.biMolecule(r1);
+	populationCentered sim = populationCentered(reacs, 2, volume);
+
+	for (int i=0; i<200; i++) {
+		std::cout<<i<<": ";
+		sim.epoch();
+		std::cout<<e1->getNbCopies()<<" "<<e2->getNbCopies()<<" "<<e3->getNbCopies()<<std::endl;
+	}
+
 
 	return 0;
 }
