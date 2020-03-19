@@ -102,9 +102,6 @@ reaction: IDENT sr ARROW IDENT sr prob SEMI {
         
         Reaction* r = new Reaction(reactifs, produits, size_reac, size_prod, proba);
 
-        for (int i = 0; i<size_reac; i++)
-            reactifs[i]->addReaction(r);
-
     }
     ;
 

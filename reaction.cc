@@ -6,6 +6,9 @@ Reaction::Reaction (EspeceMoleculaire** r, EspeceMoleculaire** p, int nbReac, in
     nbReactifs = nbReac;
     nbProduits = nbProd;
     proba = f;
+
+    for (int i = 0; i<nbReac; i++)
+        reactifs[i]->addReaction(this);
 }
 
 std::ostream& operator<< (std::ostream &stream, const Reaction &r) {
