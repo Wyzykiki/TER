@@ -2,7 +2,7 @@ espece E, s, p, Es;
 diametre = 1000;
 taille(E) = 7;
 vitesse(E) = 0.5;
-init(E) = 50;
+init(E) = 0.01 mM;
 E + s -> Es [0.3];
 Es -> E + s [0.002];
 Es -> E + p [0.005];

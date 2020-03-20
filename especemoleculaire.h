@@ -15,7 +15,7 @@ class EspeceMoleculaire {
         char* nom;
         float vitesse;
         int taille;
-        int nbCopies;
+        unsigned long long nbCopies;
         std::vector<Reaction*> reac_assoc;
 
     public:
@@ -33,8 +33,9 @@ class EspeceMoleculaire {
         void setVitesse(float v) { vitesse = v; }
         int getTaille() { return taille; }
         void setTaille(int t) { taille = t; }
-        int getNbCopies() { return nbCopies; }
-        void setNbCopies(float f) { nbCopies = 6.02214076e23*f; }
+        unsigned long long getNbCopies() { return nbCopies; }
+        void calculateNbCopies(float f) { std::cout << 6.02214076e23*f << std::endl; nbCopies = 6.02214076e23*f; std::cout << nbCopies << std::endl;}
+		void setNbCopies(int i) { nbCopies = i; }
         
         void addReaction (Reaction* r);
         std::vector<Reaction*>* getReactions () { return &reac_assoc; }
