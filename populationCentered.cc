@@ -1,13 +1,26 @@
 #include "populationCentered.h"
 
-populationCentered::populationCentered(Reaction* reactions_[], int nbReactions, float volume) {
+populationCentered::populationCentered(EspeceMoleculaire* especes_[], int nbEspeces, Reaction* reactions_[], int nbReactions, float volume) {
+	this->especes = new EspeceMoleculaire*[nbEspeces];
+	for (int i=0; i<nbEspeces; i++) {
+		this->especes[i] = especes_[i];
+	}
+	this->nbEspeces = nbEspeces;
+	
 	this->reactions = new Reaction*[nbReactions];
 	for (int i=0; i<nbReactions; i++) {
 		this->reactions[i] = reactions_[i];
 	}
 	this->nbReactions = nbReactions;
+
 	this->volume = volume;
 	this->flipFlop = true;
+
+	this->nEpoch = 0;
+
+	this->initCSV();
+
+	srand(time(NULL));
 }
 
 populationCentered::~populationCentered() {
@@ -26,7 +39,6 @@ void populationCentered::monoMolecule(Reaction* r) {
 
 	int activeReactions = (int) propension;
 
-	srand(time(NULL));
 
 	float random = (float) rand()/RAND_MAX;
 
@@ -50,11 +62,9 @@ void populationCentered::biMolecule(Reaction* r) {
 	int r2Amount = reactifs[1]->getNbCopies();
 
 
-	float propension = (alpha * (r1Amount + r2Amount) * r->getProba()) / (volume * 1e-6);
-
+	float propension = (alpha * (r1Amount + r2Amount) * r->getProba()) / volume;
 	int activeReactions = (int) propension;
 
-	srand(time(NULL));
 
 	float random = (float) rand()/RAND_MAX;
 
@@ -122,16 +132,46 @@ void populationCentered::epoch() {
 		i+=step;
 	}
 
-
+	this->nEpoch++;
 	this->flipFlop = !this->flipFlop;
+}
+
+void populationCentered::initCSV() {
+	std::fstream file("results.csv", std::fstream::out);
+	file<<"Date";
+	for (int i=0; i<this->nbEspeces; i++) {
+		file<<","<<this->especes[i]->getNom();
+	}
+	file<<std::endl;
+	file.close();
+}
+
+void populationCentered::exportCSV() {
+	if (this->nEpoch%10==0) {
+		std::fstream file("results.csv", std::fstream::app);
+		file<<this->nEpoch;
+		for (int i=0; i<this->nbEspeces; i++) {
+			file<<","<<this->especes[i]->getNbCopies();
+		}
+		file<<std::endl;
+		file.close();
+	}
 }
 
 int main() {
 	EspeceMoleculaire* e1 = new EspeceMoleculaire("E");
 	EspeceMoleculaire* e2 = new EspeceMoleculaire("s");
 	EspeceMoleculaire* e3 = new EspeceMoleculaire("Es");
+	EspeceMoleculaire* e4 = new EspeceMoleculaire("p");
 
-	e1->setNbCopies(500);
+	EspeceMoleculaire* especes[4];
+	especes[0] = e1;
+	especes[1] = e2;
+	especes[2] = e3;
+	especes[3] = e4;
+
+
+	e1->setNbCopies(3000);
 	e2->setNbCopies(200);
 
 	EspeceMoleculaire* reac[2];
@@ -142,7 +182,7 @@ int main() {
 	prod[0] = e3;
 
 
-	Reaction* r1 = new Reaction(reac, prod, 2, 1, 0.2);
+	Reaction* r1 = new Reaction(reac, prod, 2, 1, 0.3);
 	
 	EspeceMoleculaire* reac2[1];
 	reac2[0] = e3;
@@ -151,21 +191,31 @@ int main() {
 	prod2[0] = e1;
 	prod2[1] = e2;
 
-	Reaction* r2 = new Reaction(reac2, prod2, 1, 2, 0.1);
+	Reaction* r2 = new Reaction(reac2, prod2, 1, 2, 0.002);
 
-	Reaction* reacs[2];
+
+	EspeceMoleculaire* reac3[1];
+	reac3[0] = e3;
+
+	EspeceMoleculaire* prod3[2];
+	prod3[0] = e1;
+	prod3[1] = e4;
+
+	Reaction* r3 = new Reaction(reac3, prod3, 1, 2, 0.005);
+
+	Reaction* reacs[3];
 
 	reacs[0] = r1;
 	reacs[1] = r2;
+	reacs[2] = r3;
 
- 	float volume = 0.523598;
+ 	float volume = 0.000523598;
 
-	populationCentered sim = populationCentered(reacs, 2, volume);
+	populationCentered sim = populationCentered(especes, 4, reacs, 3, volume);
 
-	for (int i=0; i<200; i++) {
-		std::cout<<i<<": ";
+	for (int i=0; i<5000; i++) {
+		sim.exportCSV();
 		sim.epoch();
-		std::cout<<e1->getNbCopies()<<" "<<e2->getNbCopies()<<" "<<e3->getNbCopies()<<std::endl;
 	}
 
 
