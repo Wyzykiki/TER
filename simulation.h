@@ -2,7 +2,34 @@
 #define SIMULATION_H
 
 #include <map>
+#include <fstream>
 #include "especemoleculaire.h"
+
+class Simulation
+{
+private:
+	/** Tableau des especes */
+	EspeceMoleculaire** especes;
+	int nbEspeces;
+	
+	/** Réinitialise le fichier et écrie la première ligne */
+	void initCSV();
+
+protected:
+	/** Numéro de l'époque */
+	int nEpoch;
+
+	/** Ecrie les concentrations des especes toutes les n époques. */
+	void exportCSV();
+
+public:
+	Simulation(EspeceMoleculaire* especes[], int nbEspeces);
+	~Simulation();
+
+	/** A redéfinir */
+	void run();
+	
+};
 
 struct File_vars {
 	int diametre;

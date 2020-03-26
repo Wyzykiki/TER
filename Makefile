@@ -2,7 +2,7 @@ CC=g++ -g
 CXXFLAGS=
 LDFLAGS=
 EXEC=simulation
-SRC= parser.cc lexer.cc especemoleculaire.cc reaction.cc simulation.cc
+SRC= parser.cc lexer.cc especemoleculaire.cc reaction.cc simulation.cc populationCentered.cc
 OBJ= $(SRC:.cc=.o)
 
 all: $(EXEC)
