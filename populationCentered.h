@@ -4,10 +4,10 @@
 #include <cstdlib>
 #include <ctime>
 #include <algorithm>
-#include <fstream>
 #include "reaction.h"
+#include "simulation.h"
 
-class populationCentered
+class populationCentered : public Simulation
 {
 private:
 	/** Tableau de toutes les réactions possibles. */ 
@@ -16,13 +16,6 @@ private:
 
 	/** Volume de la simulation */
 	float volume;
-
-	/** Numéro de l'époque */
-	int nEpoch;
-
-	/** Tableau des especes */
-	EspeceMoleculaire** especes;
-	int nbEspeces;
 
 	/** Determine le sens de parcours des réactions. */
 	bool flipFlop;
@@ -36,9 +29,6 @@ private:
 	 */
 	void biMolecule(Reaction* r);
 
-	/** Réinitialise le fichier et écrie la première ligne */
-	void initCSV();
-
 public:
 
 	populationCentered(EspeceMoleculaire* especes[], int nbEspeces, Reaction* reactions[], int nbReactions, float volume);
@@ -47,9 +37,8 @@ public:
 	/** Examine chaque réaction de la simulation */
 	void epoch();
 	
-	/** Ecrie les concentrations des especes toutes les n époques. */
-	void exportCSV();
- 
+	/** Lance la simulation */
+	void run();
 };
 
 

@@ -1,12 +1,8 @@
 #include "populationCentered.h"
 
-populationCentered::populationCentered(EspeceMoleculaire* especes_[], int nbEspeces, Reaction* reactions_[], int nbReactions, float volume) {
-	this->especes = new EspeceMoleculaire*[nbEspeces];
-	for (int i=0; i<nbEspeces; i++) {
-		this->especes[i] = especes_[i];
-	}
-	this->nbEspeces = nbEspeces;
-	
+populationCentered::populationCentered(EspeceMoleculaire* especes_[], int nbEspeces, Reaction* reactions_[], int nbReactions, float volume)
+: Simulation(especes_, nbEspeces) {
+		
 	this->reactions = new Reaction*[nbReactions];
 	for (int i=0; i<nbReactions; i++) {
 		this->reactions[i] = reactions_[i];
@@ -16,10 +12,6 @@ populationCentered::populationCentered(EspeceMoleculaire* especes_[], int nbEspe
 	this->volume = volume;
 	this->flipFlop = true;
 
-	this->nEpoch = 0;
-
-	this->initCSV();
-
 	srand(time(NULL));
 }
 
@@ -27,6 +19,12 @@ populationCentered::~populationCentered() {
 	delete[] reactions;
 }
 
+void populationCentered::run() {
+	for (int i=0; i<5000; i++) {
+		this->exportCSV();
+		this->epoch();
+	}
+}
 
 void populationCentered::monoMolecule(Reaction* r) {
 
@@ -136,28 +134,6 @@ void populationCentered::epoch() {
 	this->flipFlop = !this->flipFlop;
 }
 
-void populationCentered::initCSV() {
-	std::fstream file("results.csv", std::fstream::out);
-	file<<"Date";
-	for (int i=0; i<this->nbEspeces; i++) {
-		file<<","<<this->especes[i]->getNom();
-	}
-	file<<std::endl;
-	file.close();
-}
-
-void populationCentered::exportCSV() {
-	if (this->nEpoch%10==0) {
-		std::fstream file("results.csv", std::fstream::app);
-		file<<this->nEpoch;
-		for (int i=0; i<this->nbEspeces; i++) {
-			file<<","<<this->especes[i]->getNbCopies();
-		}
-		file<<std::endl;
-		file.close();
-	}
-}
-
 int main() {
 	EspeceMoleculaire* e1 = new EspeceMoleculaire("E");
 	EspeceMoleculaire* e2 = new EspeceMoleculaire("s");
@@ -213,10 +189,7 @@ int main() {
 
 	populationCentered sim = populationCentered(especes, 4, reacs, 3, volume);
 
-	for (int i=0; i<5000; i++) {
-		sim.exportCSV();
-		sim.epoch();
-	}
+	sim.run();
 
 
 	return 0;
