@@ -1,9 +1,4 @@
-#include <iostream>
 #include "simulation.h"
-
-using namespace std;
-
-extern File_vars parse(char*);
 
 Simulation::Simulation(EspeceMoleculaire* especes_[], int nbEspeces) {
     this->especes = new EspeceMoleculaire*[nbEspeces];
