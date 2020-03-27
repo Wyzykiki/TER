@@ -124,6 +124,26 @@ vitesse: VITESSE LP IDENT RP EQ FLOAT SEMI { char* id = $3; especes[strToASCII(i
     ;
 
 init: INIT LP IDENT RP EQ INT SEMI { char* id = $3; especes[strToASCII(id)]->setNbCopies($6); }
+	| INIT LP IDENT RP EQ INT IDENT SEMI { 
+			char* id = $3;
+			float concentration = $6;
+			char* unite = $7;
+			if(strToASCII(unite) == strToASCII("uM")){
+				especes[strToASCII(id)]->calculateNbCopies(concentration*0.000001);
+			} else if (strToASCII(unite) == strToASCII("mM")) {
+				especes[strToASCII(id)]->calculateNbCopies(concentration*0.001);
+			}
+		}
+	| INIT LP IDENT RP EQ FLOAT IDENT SEMI { 
+			char* id = $3;
+			float concentration = $6;
+			char* unite = $7;
+			if(strToASCII(unite) == strToASCII("uM")){
+				especes[strToASCII(id)]->calculateNbCopies(concentration*0.000001);
+			} else if (strToASCII(unite) == strToASCII("mM")) {
+				especes[strToASCII(id)]->calculateNbCopies(concentration*0.001);
+			}
+		}
     ;
 
 %%
