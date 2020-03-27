@@ -15,7 +15,7 @@
     void yyerror(const char *s);
 
     const float PI = 3.141592653589793;
-    const float NB_AVOG = 6.02214076e23;
+    const float NB_AVOG = 6.02214076;
 
     map<int, EspeceMoleculaire*> especes;
     int diametre;
@@ -57,7 +57,7 @@ head: espece diametre {}
 espece: ESPECE listesp SEMI {}
     ;
     
-listesp: IDENT
+listesp: IDENT { char* id = $1; especes[strToASCII(id)] = new EspeceMoleculaire(id); }
     | IDENT COMMA listesp { char* id = $1; especes[strToASCII(id)] = new EspeceMoleculaire(id); /*on ajoute la nouvelle espece moleculaire a la liste */}
     ;
 
@@ -125,25 +125,29 @@ vitesse: VITESSE LP IDENT RP EQ FLOAT SEMI { char* id = $3; especes[strToASCII(i
 
 init: INIT LP IDENT RP EQ INT SEMI { char* id = $3; especes[strToASCII(id)]->setNbCopies($6); }
 	| INIT LP IDENT RP EQ INT IDENT SEMI { 
-			char* id = $3;
-			float concentration = $6;
-			char* unite = $7;
-			if(strToASCII(unite) == strToASCII("uM")){
-				especes[strToASCII(id)]->calculateNbCopies(concentration*0.000001);
-			} else if (strToASCII(unite) == strToASCII("mM")) {
-				especes[strToASCII(id)]->calculateNbCopies(concentration*0.001);
-			}
-		}
+        char* id = $3;
+        int concentration = $6;
+        char* unite = $7;
+        if(strToASCII(unite) == strToASCII("uM")){
+            int nbMol = concentration * volume * NB_AVOG * 100;
+            especes[strToASCII(id)]->setNbCopies(nbMol);
+        } else if (strToASCII(unite) == strToASCII("mM")) {
+            int nbMol = concentration * volume * NB_AVOG * 100 * 1000;
+            especes[strToASCII(id)]->setNbCopies(nbMol);
+        }
+	}
 	| INIT LP IDENT RP EQ FLOAT IDENT SEMI { 
-			char* id = $3;
-			float concentration = $6;
-			char* unite = $7;
-			if(strToASCII(unite) == strToASCII("uM")){
-				especes[strToASCII(id)]->calculateNbCopies(concentration*0.000001);
-			} else if (strToASCII(unite) == strToASCII("mM")) {
-				especes[strToASCII(id)]->calculateNbCopies(concentration*0.001);
-			}
-		}
+        char* id = $3;
+        float concentration = $6;
+        char* unite = $7;
+        if(strToASCII(unite) == strToASCII("uM")){
+            int nbMol = concentration * volume * NB_AVOG * 100;
+            especes[strToASCII(id)]->setNbCopies(nbMol);
+        } else if (strToASCII(unite) == strToASCII("mM")) {
+            int nbMol = concentration * volume * NB_AVOG * 100 * 1000;
+            especes[strToASCII(id)]->setNbCopies(nbMol);
+        }
+	}
     ;
 
 %%
