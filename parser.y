@@ -1,5 +1,6 @@
 %{
     #include <iostream>
+    #include <cmath>
     #include "reaction.h"
     #include "simulation.h"
     
@@ -13,8 +14,12 @@
  
     void yyerror(const char *s);
 
+    const float PI = 3.141592653589793;
+    const float NB_AVOG = 6.02214076e23;
+
     map<int, EspeceMoleculaire*> especes;
     int diametre;
+    float volume;
 
     /** Compute an int from a c-string
      *  @result is the sum of caracter's ASCII codes multiplied by their positions
@@ -52,11 +57,11 @@ head: espece diametre {}
 espece: ESPECE listesp SEMI {}
     ;
     
-listesp: IDENT { char* id = $1; especes[strToASCII(id)] = new EspeceMoleculaire(id);/*on ajoute la nouvelle espece moleculaire a la liste */}
-    | IDENT COMMA listesp { char* id = $1; especes[strToASCII(id)] = new EspeceMoleculaire(id); }
+listesp: IDENT
+    | IDENT COMMA listesp { char* id = $1; especes[strToASCII(id)] = new EspeceMoleculaire(id); /*on ajoute la nouvelle espece moleculaire a la liste */}
     ;
 
-diametre: DIAM EQ INT SEMI { diametre = $3; }
+diametre: DIAM EQ INT SEMI { diametre = $3; volume = 1./6. * PI * pow(diametre, 3.); }
     ;
 
 body: instr body {}
@@ -171,7 +176,7 @@ File_vars parse(char* filename) {
     }
 
     /** Création de la structure avec les données utiles pour la simulation. */
-    File_vars globals(diametre, especes_arr, esp_size);
+    File_vars globals(diametre, volume, especes_arr, esp_size);
     return globals;
 }
 

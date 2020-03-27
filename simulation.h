@@ -33,17 +33,20 @@ public:
 
 struct File_vars {
 	int diametre;
+	float volume;
 	EspeceMoleculaire** especes;
 	int size;
 
-	File_vars(int diametre_, EspeceMoleculaire** especes_, int size_) {
+	File_vars(int diametre_, float volume_, EspeceMoleculaire** especes_, int size_) {
 		diametre = diametre_;
+		volume = volume_;
 		especes = especes_;
 		size = size_;
 	}
 
 	File_vars(const File_vars &other) {
 		diametre = other.diametre;
+		volume = other.volume;
 		especes = other.especes;
 		size = other.size;
 	}
