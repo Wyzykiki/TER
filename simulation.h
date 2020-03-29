@@ -27,7 +27,7 @@ public:
 	~Simulation();
 
 	/** A redéfinir */
-	void run();
+	virtual void run() = 0;
 	
 };
 

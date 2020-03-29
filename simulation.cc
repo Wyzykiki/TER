@@ -37,6 +37,3 @@ void Simulation::exportCSV() {
 		file.close();
 	}
 }
-
-void Simulation::run() {}
-
