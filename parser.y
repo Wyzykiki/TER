@@ -18,8 +18,10 @@
     const float NB_AVOG = 6.02214076;
 
     map<int, EspeceMoleculaire*> especes;
-    int diametre;
+    float diametre;
     float volume;
+    Reaction** tmpReactions = new Reaction*[100] ;
+    int nbReactions = 0;
 
     /** Compute an int from a c-string
      *  @result is the sum of caracter's ASCII codes multiplied by their positions
@@ -61,7 +63,7 @@ listesp: IDENT { char* id = $1; especes[strToASCII(id)] = new EspeceMoleculaire(
     | IDENT COMMA listesp { char* id = $1; especes[strToASCII(id)] = new EspeceMoleculaire(id); /*on ajoute la nouvelle espece moleculaire a la liste */}
     ;
 
-diametre: DIAM EQ INT SEMI { diametre = $3; volume = 1./6. * PI * pow(diametre, 3.); }
+diametre: DIAM EQ FLOAT SEMI { diametre = $3; volume = 1./6. * PI * pow(diametre, 3.); }
     ;
 
 body: instr body {}
@@ -107,6 +109,8 @@ reaction: IDENT sr ARROW IDENT sr prob SEMI {
         
         Reaction* r = new Reaction(reactifs, produits, size_reac, size_prod, proba);
 
+        tmpReactions[nbReactions] = r;
+        nbReactions++;
     }
     ;
 
@@ -199,8 +203,13 @@ File_vars parse(char* filename) {
         exit(-1);
     }
 
+    Reaction** reactions = new Reaction*[nbReactions];
+    for (int i=0; i<nbReactions; i++) {
+        reactions[i] = tmpReactions[i];
+    }
+
     /** Création de la structure avec les données utiles pour la simulation. */
-    File_vars globals(diametre, volume, especes_arr, esp_size);
+    File_vars globals(diametre, volume, especes_arr, esp_size, reactions, nbReactions);
     return globals;
 }
 

@@ -20,7 +20,7 @@ populationCentered::~populationCentered() {
 }
 
 void populationCentered::run() {
-	for (int i=0; i<5000; i++) {
+	for (int i=0; i<300000; i++) {
 		this->exportCSV();
 		this->epoch();
 	}
@@ -60,7 +60,7 @@ void populationCentered::biMolecule(Reaction* r) {
 	int r2Amount = reactifs[1]->getNbCopies();
 
 
-	float propension = (alpha * (r1Amount + r2Amount) * r->getProba()) / volume;
+	float propension = (alpha * r1Amount * r2Amount * r->getProba()) / volume;
 	int activeReactions = (int) propension;
 
 
