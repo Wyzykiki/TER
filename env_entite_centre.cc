@@ -49,20 +49,6 @@ void Env_entite_centre::run(){
 
     while (nEpoch<300000){
         for(int i = 0 ; i < nb_mols ; i++) {
-            //on calcule un deplacement aleatoire
-            
-            /*float tauxX = std::rand();
-            float tauxY = std::rand();
-            float tauxZ = std::rand();
-
-            tauxX = tauxX / (tauxX + tauxY + tauxZ);
-            tauxY = tauxY / (tauxX + tauxY + tauxZ);
-            tauxZ = tauxZ / (tauxX + tauxY + tauxZ);
-
-            int moveX = molecules.at(i).getEM()->getVitesse() * tauxX;
-            int moveY = molecules.at(i).getEM()->getVitesse() * tauxY;
-            int moveZ = molecules.at(i).getEM()->getVitesse() * tauxZ;*/
-
             // la molecule ne se deplace que sur un axe durant une periode, on choisi donc son axe et calcule se nouvelle position
             int axe = 1 + std::rand()/((RAND_MAX + 1u)/3);
             // On choisi si elle "avance" ou "recule" sur cet axe : 0 elle recule, 1 elle avance
