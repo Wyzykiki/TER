@@ -2,6 +2,7 @@
 #define ESPECEMOLECULAIRE_H
 
 #include <stdio.h>
+#include <iostream>
 #include <string>
 #include <string.h>
 #include <vector>
@@ -26,7 +27,8 @@ class EspeceMoleculaire {
             strcpy(nom,n);
         }
 
-        ~EspeceMoleculaire() { delete nom; }
+        // MEME PROBLEME QUE DESTRUCTEUR DE MOLECULE
+        ~EspeceMoleculaire() { /*delete nom;*/ }
 
         char* getNom() { return nom; }
         float getVitesse() { return vitesse; }
@@ -42,6 +44,8 @@ class EspeceMoleculaire {
         
         /* Retourne la position de la reaction dans le vector associant l'espece moleculaire courante et une espece moleculaire donnee */
         int getPosActualReaction (EspeceMoleculaire em);
+
+        bool operator==(const EspeceMoleculaire&);
 
         bool isDepleted();
 

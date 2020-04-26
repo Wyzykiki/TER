@@ -19,6 +19,7 @@ class Reaction {
     public:
         Reaction () : proba(0.0) {};
         Reaction (EspeceMoleculaire**, EspeceMoleculaire**, int, int, float);
+        Reaction (const Reaction&);
 
         ~Reaction () { delete reactifs; delete produits;}
 
@@ -31,6 +32,7 @@ class Reaction {
         float getProba () { return proba; }
         void setProba (float f) { proba = f; }
         friend std::ostream& operator<< (std::ostream &stream, const Reaction& r);
+        Reaction& operator=(const Reaction&);
 };
 
 #include "especemoleculaire.h"

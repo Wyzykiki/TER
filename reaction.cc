@@ -29,3 +29,22 @@ std::ostream& operator<< (std::ostream &stream, const Reaction &r) {
     stream<<" proba: "<<r.proba;    
     return stream;
 }
+
+Reaction::Reaction(const Reaction& r) {
+    reactifs = r.reactifs;
+    produits = r.produits;
+    nbReactifs = r.nbReactifs;
+    nbProduits = r.nbProduits;
+    proba = r.proba;
+}
+
+Reaction& Reaction::operator=(const Reaction& r) {
+    if(this != &r) {
+        reactifs = r.reactifs;
+        produits = r.produits;
+        nbReactifs = r.nbReactifs;
+        nbProduits = r.nbProduits;
+        proba = r.proba;
+    }
+    return *this;
+}
