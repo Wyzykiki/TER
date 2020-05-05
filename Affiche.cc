@@ -281,11 +281,11 @@ static Vector	selection (0., 0., 0.);
 
 extern File_vars parse(char*);
 
-File_vars init(parse("osc-4R.txt"));
+File_vars* init;
 
-Molecule** molecules = new Molecule*[init.size];
+Molecule** molecules;
 
-int rayon = init.diametre*1000/2.;
+int rayon = 0;
 
 
 // static EspeceMol
@@ -446,7 +446,7 @@ static void display_molecules ()//FIXME: appel de l'affichage sur toutes les mol
 	glBindTexture (GL_TEXTURE_2D, Sphere_tex);
 	glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	// for (p = les_molecules; p != 0; p = p -> _next)
-	for (int i=0; i<init.size; i++)
+	for (int i=0; i<init->size; i++)
 		quad_draw (molecules[i]);
 	glDisable(GL_TEXTURE_2D);
 }
@@ -1085,8 +1085,17 @@ static void keyboard (unsigned char key, int x, int y)
 
 int main (int argc, char** argv)
 {
-for (int i=0; i<init.size; i++) {
-	molecules[i] = new Molecule(init.especes[i]);
+
+init = new File_vars(parse("osc-4R.txt"));
+
+// Env_entite_centre env(init->especes, init->size, init->diametre);
+
+molecules = new Molecule*[init->size];//TODO: recup le vector de la simu
+rayon = init->diametre*1000/2.;
+
+//TODO: a virer
+for (int i=0; i<init->size; i++) {
+	molecules[i] = new Molecule(init->especes[i]);
 	molecules[i]->setX(i*10);
 	molecules[i]->setY(i*10);
 	molecules[i]->setZ(i*10);
