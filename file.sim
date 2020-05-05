@@ -1,5 +1,5 @@
 espece E, s, p, Es;
-diametre = 1;
+diametre = 1.0;
 taille(E) = 7;
 vitesse(E) = 0.5;
 init(E) = 0.01 mM;

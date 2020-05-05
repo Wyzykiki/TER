@@ -17,6 +17,9 @@ class EspeceMoleculaire {
         int taille;
         int nbCopies;
         std::vector<Reaction*> reac_assoc;
+        
+        /** Pour l'affichage */
+        int color[3] = {0, 0, 0};
 
     public:
         EspeceMoleculaire() {}
@@ -45,6 +48,26 @@ class EspeceMoleculaire {
 
         bool isDepleted();
 
+        /** color */
+
+        int getR() {
+            return this->color[0];
+        }
+        int getG() {
+            return this->color[1];
+        }
+        int getB() {
+            return this->color[2];
+        }
+        void setR(int r) {
+            this->color[0] = r;
+        }
+        void setG(int g) {
+            this->color[1] = g;
+        }
+        void setB(int b) {
+            this->color[2] = b;
+        }
 };
 
 class IncorrectProbabilityRates : public std::exception {

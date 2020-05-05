@@ -5,5 +5,7 @@ parser.cc
 parser.hh
 lexer.cc
 *.csv
+affiche
 
+*.txt
 testMain.cc
