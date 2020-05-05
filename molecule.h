@@ -10,7 +10,7 @@ class Molecule {
         EspeceMoleculaire* em;
 
     public:
-        Molecule();
+        Molecule() : x(0), y(0), z(0) {}
         Molecule(EspeceMoleculaire* espece) : x(0), y(0), z(0) {
             em = espece;
         }
@@ -26,9 +26,11 @@ class Molecule {
         int getZ() { return z; }
         void setZ(int i) { z = i; }
         void setPos(int, int, int);
-        EspeceMoleculaire* getEM() { return em; }
 
         Molecule& operator=(const Molecule &);
         bool operator==(const Molecule &);
 
+        EspeceMoleculaire* getEM() { return em; }
+        // EspeceMoleculaire* getEspece() { return em; }
+        void setEspece(EspeceMoleculaire* em) { this->em = em; }
 };
