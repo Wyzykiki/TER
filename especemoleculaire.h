@@ -26,9 +26,10 @@ class EspeceMoleculaire {
             nom = new char[length+1];
             strcpy(nom,n);
         }
+        EspeceMoleculaire(const EspeceMoleculaire&);
 
         // MEME PROBLEME QUE DESTRUCTEUR DE MOLECULE
-        ~EspeceMoleculaire() { /*delete nom;*/ }
+        ~EspeceMoleculaire() { delete nom; }
 
         char* getNom() { return nom; }
         float getVitesse() { return vitesse; }
@@ -43,7 +44,7 @@ class EspeceMoleculaire {
         Reaction* getReaction (int i);
         
         /* Retourne la position de la reaction dans le vector associant l'espece moleculaire courante et une espece moleculaire donnee */
-        int getPosActualReaction (EspeceMoleculaire em);
+        int getPosActualReaction (EspeceMoleculaire* em);
 
         bool operator==(const EspeceMoleculaire&);
 

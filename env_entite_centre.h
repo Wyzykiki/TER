@@ -15,7 +15,7 @@ class Env_entite_centre : public Simulation {
     private :
         int nb_mols;
         int diametre;
-        std::vector<Molecule> molecules;
+        std::vector<Molecule*> molecules;
         Molecule**** grid;
         EspeceMoleculaire** especes;
 
