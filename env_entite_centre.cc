@@ -44,10 +44,16 @@ Env_entite_centre::~Env_entite_centre() {
 
 
 void Env_entite_centre::run(){
+    
+
+    // std::cout<<"alo "<<molecules[0]->getX()<<" "<<molecules[0]->getY()<<" "<<molecules[0]->getZ()<<std::endl;
+    int a=0;
+
     exportCSV();
     srand(time(NULL));
 
-    while (nEpoch<300000){
+    while (a<50){
+        a++;
         for(int i = 0 ; i < nb_mols ; i++) {
             // for (int k=0; k<nb_mols; k++)
             //     std::cout << "OOF " << molecules.at(k)->getEM()->getNom() << std::endl;

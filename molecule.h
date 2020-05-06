@@ -1,3 +1,6 @@
+#ifndef MOLECULE_H
+#define MOLECULE_H
+
 #include <stdio.h>
 
 #include "especemoleculaire.h"
@@ -31,6 +34,7 @@ class Molecule {
         bool operator==(const Molecule &);
 
         EspeceMoleculaire* getEM() { return em; }
-        // EspeceMoleculaire* getEspece() { return em; }
         void setEspece(EspeceMoleculaire* em) { this->em = em; }
 };
+
+#endif

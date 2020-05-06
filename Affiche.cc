@@ -26,6 +26,7 @@
 #include "especemoleculaire.h"
 #include "molecule.h"
 #include "simulation.h"
+#include "env_entite_centre.h"
 
 #ifdef __APPLE__
 #include <GLUT/glut.h>
@@ -283,7 +284,10 @@ extern File_vars parse(char*);
 
 File_vars* init;
 
-Molecule** molecules;
+// Molecule** molecules;
+std::vector<Molecule*> molecules;
+
+Env_entite_centre* env;
 
 int rayon = 0;
 
@@ -446,7 +450,7 @@ static void display_molecules ()//FIXME: appel de l'affichage sur toutes les mol
 	glBindTexture (GL_TEXTURE_2D, Sphere_tex);
 	glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	// for (p = les_molecules; p != 0; p = p -> _next)
-	for (int i=0; i<init->size; i++)
+	for (int i=0; i<molecules.size(); i++)
 		quad_draw (molecules[i]);
 	glDisable(GL_TEXTURE_2D);
 }
@@ -533,13 +537,14 @@ static bool stopped = true;
 
 static void diff_react (void)
 {
-#if 0//FIXME:
+#if 1//FIXME:
 	// ne prendre ni trop grand (pour laisser du temps aux interactions)
 	// ni trop petit (pour ne pas ramer)
 	int	gen_incr = 50;
 
 	// appeler la fonction de calcul de gen_incr pas de temps.
-	compute (gen_incr);
+	env->run();
+	std::cout<<"alo "<<std::endl;
 #endif
 	// r�afficher.
 	if (diffusion_only)
@@ -1086,20 +1091,22 @@ static void keyboard (unsigned char key, int x, int y)
 int main (int argc, char** argv)
 {
 
-init = new File_vars(parse("osc-4R.txt"));
+// init = new File_vars(parse("osc-4R.txt"));
+init = new File_vars(parse("file.sim"));
 
-// Env_entite_centre env(init->especes, init->size, init->diametre);
+env = new Env_entite_centre(init->especes, init->size, init->diametre);
 
-molecules = new Molecule*[init->size];//TODO: recup le vector de la simu
-rayon = init->diametre*1000/2.;
+// molecules = new Molecule*[init->size];//TODO: recup le vector de la simu
+molecules = env->getMolecules();
+rayon = 0.01*1000/2.;
 
 //TODO: a virer
-for (int i=0; i<init->size; i++) {
-	molecules[i] = new Molecule(init->especes[i]);
-	molecules[i]->setX(i*10);
-	molecules[i]->setY(i*10);
-	molecules[i]->setZ(i*10);
-}
+// for (int i=0; i<init->size; i++) {
+// 	molecules[i] = new Molecule(init->especes[i]);
+// 	molecules[i]->setX(i*10);
+// 	molecules[i]->setY(i*10);
+// 	molecules[i]->setZ(i*10);
+// }
 
 	int				mask = GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH;
 
