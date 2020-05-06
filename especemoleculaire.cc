@@ -4,7 +4,7 @@ void EspeceMoleculaire::addReaction (Reaction* r) { reac_assoc.push_back(r); }
 
 Reaction* EspeceMoleculaire::getReaction (int i) { return reac_assoc.at(i); }
 
-int EspeceMoleculaire::getPosActualReaction (EspeceMoleculaire* em){
+int EspeceMoleculaire::getPosActualReaction(EspeceMoleculaire* em){
     int i = 0;
     
     while (i < reac_assoc.size()) {

@@ -31,7 +31,6 @@ class EspeceMoleculaire {
         }
         EspeceMoleculaire(const EspeceMoleculaire&);
 
-        // MEME PROBLEME QUE DESTRUCTEUR DE MOLECULE
         ~EspeceMoleculaire() { delete nom; }
 
         char* getNom() { return nom; }

@@ -28,7 +28,6 @@ bool Molecule::operator==(const Molecule &mol){
     return x == mol.x && y == mol.y && z == mol.z && em == mol.em;
 }
 
-/* Delete cause des erreurs (Double free or corruption(fasttop)) lors d'appels successifs sur le vecteur de env_entite_centre et je ne comprends pas pourquoi. Libere certainement même zone memoire dans molecules differentes */
 Molecule::~Molecule(){
     delete em;
 }
