@@ -1,9 +1,8 @@
 espece E, s, p, Es;
-diametre = 10.0;
+diametre = 60.0;
 taille(E) = 7;
 vitesse(E) = 1.3;
-init(E) = 30;
-init(Es) = 8;
+init(E) = 300;
 init(s) = 30;
 E + s -> Es [0.3];
 Es -> E + s [0.002];

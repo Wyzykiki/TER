@@ -80,20 +80,18 @@ void Env_entite_centre::run(){
             // Comme la grille est entiere, on calcule la probabilite de se deplacer d'une case de plus basee sur la decimale de la vitesse
             long ent = (long) molecules.at(i)->getEM()->getVitesse();
             int dig = (int)((molecules.at(i)->getEM()->getVitesse()-ent)*10 + 0.5);
-            bool willMoveDigit = dig / std::rand()/((RAND_MAX + 1u)/10);
+            //bool willMoveDigit = std::rand()/((RAND_MAX + 1u)/10) <= dig;
 
             // On calcule la nouvelle position de la molecule après déplacement
-            if(axe == 1) newPosX += molecules.at(i)->getEM()->getVitesse()*dir + molecules.at(i)->getEM()->getVitesse()*(dir-1) + ((willMoveDigit) ? 1 : 0);
-            else if(axe == 2) newPosY += molecules.at(i)->getEM()->getVitesse()*dir + molecules.at(i)->getEM()->getVitesse()*(dir-1) + ((willMoveDigit) ? 1 : 0);
-            else if(axe == 3) newPosZ += molecules.at(i)->getEM()->getVitesse()*dir + molecules.at(i)->getEM()->getVitesse()*(dir-1) + ((willMoveDigit) ? 1 : 0);
+            if(axe == 1) newPosX += molecules.at(i)->getEM()->getVitesse()*dir + molecules.at(i)->getEM()->getVitesse()*(dir-1) /*+ ((willMoveDigit) ? 1 : 0)*/;
+            else if(axe == 2) newPosY += molecules.at(i)->getEM()->getVitesse()*dir + molecules.at(i)->getEM()->getVitesse()*(dir-1) /*+ ((willMoveDigit) ? 1 : 0)*/;
+            else if(axe == 3) newPosZ += molecules.at(i)->getEM()->getVitesse()*dir + molecules.at(i)->getEM()->getVitesse()*(dir-1) /*+ ((willMoveDigit) ? 1 : 0)*/;
 
-            // std::cout << i<<" mol_i : " << molecules.at(i)->getEM()->getNom() << std::endl;
             
             //on verifie que la molecule ne sorte pas de la zone en se deplacant
-            if(newPosX >= 0 && newPosX < diametre && newPosY >= 0 && newPosY < diametre&& newPosZ >= 0 && newPosZ < diametre) {
+            if(newPosX >= 0 && newPosX < diametre && newPosY >= 0 && newPosY < diametre && newPosZ >= 0 && newPosZ < diametre) {
                 //si collision avec une autre dans la grille elle arrête de se deplacer et retiens avec qui il y a eu collision
                 Molecule* mol_encountered = new Molecule(*molecules.at(i));
-                //std::cout << "mol_enc : " << mol_encountered->getEM()->getNom() << std::endl;
 
                 if(axe == 1){
                     int a = molecules.at(i)->getX() + ((dir==0)?-1:1);
@@ -126,20 +124,41 @@ void Env_entite_centre::run(){
                     if(reac != -1){
                         bool willReact = ((float) (std::rand()/((RAND_MAX + 1u)/1000))/1000) <= molecules.at(i)->getEM()->getReaction(reac)->getProba();
                         if(willReact){
-                            grid[molecules.at(i)->getX()][molecules.at(i)->getY()][molecules.at(i)->getZ()] = 0;
-
                             if(molecules.at(i)->getEM()->getReaction(reac)->getNbProduits() == 1) {
                                 std::vector<Molecule*>::iterator posMolEnc = std::find_if(molecules.begin(), molecules.end(), [&mol_encountered](Molecule *mol){return mol_encountered->getX() == mol->getX() && mol_encountered->getY() == mol->getY() && mol_encountered->getZ() == mol->getZ();});
-                                //std::cout << "posMol : " << (*posMolEnc)->getEM()->getNom() << ", mol_enc : " << mol_encountered->getEM()->getNom() << std::endl;
                                 std::cout << "react 1" << std::endl;
+                                if((*posMolEnc)->getEM()->getNbCopies() == 0){
+                                    std::cout << "em(enc) : " << (*posMolEnc)->getEM()->getNom() << ", copies : " <<  (*posMolEnc)->getEM()->getNbCopies() << std::endl;
+                                    for (int a = 0 ; a < molecules.size() ; a++) {
+                                        if(strcmp(molecules.at(a)->getEM()->getNom(), (*posMolEnc)->getEM()->getNom()) == 0 && molecules.at(a)->getX() == (*posMolEnc)->getX() && molecules.at(a)->getY() == (*posMolEnc)->getY()&& molecules.at(a)->getZ() == (*posMolEnc)->getZ()){
+                                            std::cout << "trouvé" << std::endl;
+                                        }
+                                    }
+                                }
+
                                 (*posMolEnc)->getEM()->setNbCopies((*posMolEnc)->getEM()->getNbCopies()-1);
                                 *posMolEnc = new Molecule(molecules.at(i)->getEM()->getReaction(reac)->getProduits()[0], mol_encountered->getX(), mol_encountered->getY(), mol_encountered->getZ());
                                 grid[mol_encountered->getX()][mol_encountered->getY()][mol_encountered->getZ()] = (*posMolEnc);
                                 (*posMolEnc)->getEM()->setNbCopies((*posMolEnc)->getEM()->getNbCopies()+1);
+
+                                grid[molecules.at(i)->getX()][molecules.at(i)->getY()][molecules.at(i)->getZ()] = 0;
                                 molecules.at(i)->getEM()->setNbCopies(molecules.at(i)->getEM()->getNbCopies()-1);
+                                /*if(molecules.at(i)->getEM()->getNbCopies() < 0){
+                                    std::cout << "em(mol) : " << molecules.at(i)->getEM()->getNom() << ", copies : " <<  molecules.at(i)->getEM()->getNbCopies() << std::endl;
+                                    for (int a = 0 ; a < diametre ; a++) {
+                                        for (int b = 0 ; b < diametre ; b++) {
+                                            for (int c = 0 ; c < diametre ; c++) {
+                                                if(grid[a][b][c] != 0 && strcmp(grid[a][b][c]->getEM()->getNom(), molecules.at(i)->getEM()->getNom()) == 0 && a == molecules.at(i)->getX() && b == molecules.at(i)->getY() && c == molecules.at(i)->getZ()){
+                                                    std::cout << "trouvé" << std::endl;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }*/
                                 molecules.erase(std::remove(molecules.begin(), molecules.end(), molecules.at(i)), molecules.end());
                             }
-                            else {
+                            /*else {
+                                grid[molecules.at(i)->getX()][molecules.at(i)->getY()][molecules.at(i)->getZ()] = 0;
                                 std::vector<Molecule*>::iterator posMolEnc = std::find_if(molecules.begin(), molecules.end(), [&mol_encountered](Molecule *mol){return mol_encountered->getX() == mol->getX() && mol_encountered->getY() == mol->getY() && mol_encountered->getZ() == mol->getZ();});
                                 std::cout << "reac 2" << std::endl;
                                 (*posMolEnc)->getEM()->setNbCopies((*posMolEnc)->getEM()->getNbCopies()-1);
@@ -160,7 +179,7 @@ void Env_entite_centre::run(){
                                     grid[mol_encountered->getX()][mol_encountered->getY()][mol_encountered->getZ()+dir+(dir-1)] = molecules.at(i);
                                 }
                                 molecules.at(i)->getEM()->setNbCopies(molecules.at(i)->getEM()->getNbCopies()+1);
-                            }
+                            }*/
                         }
                     }
                 }
@@ -185,7 +204,6 @@ void Env_entite_centre::run(){
                         bool willReact = ((float) (std::rand()/((RAND_MAX + 1u)/1000))/1000) <= reaction_assoc.at(x)->getProba();
                         if(willReact) {
                             std::cout << "react solo" << std::endl;
-                            molecules.at(i)->getEM()->setNbCopies(molecules.at(i)->getEM()->getNbCopies()-1);
                             if(reaction_assoc.at(x)->getNbProduits() == 2) {
                                 int a = molecules.at(i)->getX();
                                 int b = molecules.at(i)->getY();
@@ -196,18 +214,19 @@ void Env_entite_centre::run(){
                                 else if(axe == 3) c -= (dir + (dir-1));
 
                                 molecules.push_back(new Molecule(reaction_assoc.at(x)->getProduits()[1], a, b, c));
-                                molecules.back()->getEM()->setNbCopies(molecules.at(i)->getEM()->getNbCopies()+1);
+                                molecules.back()->getEM()->setNbCopies(molecules.back()->getEM()->getNbCopies()+1);
                                 grid[a][b][c] = molecules.back();
                             }
+                            molecules.at(i)->getEM()->setNbCopies(molecules.at(i)->getEM()->getNbCopies()-1);
                             molecules.at(i) = new Molecule(reaction_assoc.at(x)->getProduits()[0], molecules.at(i)->getX(), molecules.at(i)->getY(), molecules.at(i)->getZ());
                             molecules.at(i)->getEM()->setNbCopies(molecules.at(i)->getEM()->getNbCopies()+1);
+                            grid[molecules.at(i)->getX()][molecules.at(i)->getY()][molecules.at(i)->getZ()] = molecules.at(i);
                             hasReact = true;
                         }
                     }
                     x++;
                 }
             }
-
             nb_mols = molecules.size();
         }
 
