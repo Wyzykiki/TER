@@ -47,10 +47,8 @@ void Env_entite_centre::run(){
     exportCSV();
     srand(time(NULL));
 
-    while (nEpoch<300000){
+    while (nEpoch<10000){
         for(int i = 0 ; i < nb_mols ; i++) {
-            // for (int k=0; k<nb_mols; k++)
-            //     std::cout << "OOF " << molecules.at(k)->getEM()->getNom() << std::endl;
             //on calcule un deplacement aleatoire
             
             /*float tauxX = std::rand();
@@ -80,12 +78,12 @@ void Env_entite_centre::run(){
             // Comme la grille est entiere, on calcule la probabilite de se deplacer d'une case de plus basee sur la decimale de la vitesse
             long ent = (long) molecules.at(i)->getEM()->getVitesse();
             int dig = (int)((molecules.at(i)->getEM()->getVitesse()-ent)*10 + 0.5);
-            //bool willMoveDigit = std::rand()/((RAND_MAX + 1u)/10) <= dig;
+            bool willMoveDigit = std::rand()/((RAND_MAX + 1u)/10) <= dig;
 
             // On calcule la nouvelle position de la molecule après déplacement
-            if(axe == 1) newPosX += molecules.at(i)->getEM()->getVitesse()*dir + molecules.at(i)->getEM()->getVitesse()*(dir-1) /*+ ((willMoveDigit) ? 1 : 0)*/;
-            else if(axe == 2) newPosY += molecules.at(i)->getEM()->getVitesse()*dir + molecules.at(i)->getEM()->getVitesse()*(dir-1) /*+ ((willMoveDigit) ? 1 : 0)*/;
-            else if(axe == 3) newPosZ += molecules.at(i)->getEM()->getVitesse()*dir + molecules.at(i)->getEM()->getVitesse()*(dir-1) /*+ ((willMoveDigit) ? 1 : 0)*/;
+            if(axe == 1) newPosX += molecules.at(i)->getEM()->getVitesse()*dir + molecules.at(i)->getEM()->getVitesse()*(dir-1) + ((willMoveDigit) ? 1 : 0);
+            else if(axe == 2) newPosY += molecules.at(i)->getEM()->getVitesse()*dir + molecules.at(i)->getEM()->getVitesse()*(dir-1) + ((willMoveDigit) ? 1 : 0);
+            else if(axe == 3) newPosZ += molecules.at(i)->getEM()->getVitesse()*dir + molecules.at(i)->getEM()->getVitesse()*(dir-1) + ((willMoveDigit) ? 1 : 0);
 
             
             //on verifie que la molecule ne sorte pas de la zone en se deplacant
@@ -186,9 +184,18 @@ void Env_entite_centre::run(){
                                 int b = molecules.at(i)->getY();
                                 int c = molecules.at(i)->getZ();
 
-                                if(axe == 1) a -= (dir + (dir-1));
-                                else if(axe == 2) b -= (dir + (dir-1));
-                                else if(axe == 3) c -= (dir + (dir-1));
+                                if(axe == 1 && a > 0 && a < diametre - 1 && grid[a - (dir + (dir-1))][molecules.at(i)->getY()][molecules.at(i)->getZ()] == 0) 
+                                    a -= (dir + (dir-1));
+                                if(axe == 1 && a > 0 && a < diametre - 1 && grid[a + (dir + (dir-1))][molecules.at(i)->getY()][molecules.at(i)->getZ()] == 0) 
+                                    a += (dir + (dir-1));
+                                else if(axe == 2 && b > 0 && b < diametre - 1 && grid[molecules.at(i)->getX()][b - (dir + (dir-1))][molecules.at(i)->getZ()] == 0) 
+                                    b -= (dir + (dir-1));
+                                else if(axe == 2 && b > 0 && b < diametre - 1 && grid[molecules.at(i)->getX()][b + (dir + (dir-1))][molecules.at(i)->getZ()] == 0) 
+                                    b += (dir + (dir-1));
+                                else if(axe == 3 && c > 0 && c < diametre - 1 && grid[molecules.at(i)->getX()][molecules.at(i)->getY()][c - (dir + (dir-1))] == 0) 
+                                    c -= (dir + (dir-1));
+                                else if(axe == 3 && c > 0 && c < diametre - 1 && grid[molecules.at(i)->getX()][molecules.at(i)->getY()][c + (dir + (dir-1))] == 0) 
+                                    c += (dir + (dir-1));
 
                                 molecules.push_back(new Molecule(reaction_assoc.at(x)->getProduits()[1], a, b, c));
                                 molecules.back()->getEM()->setNbCopies(molecules.back()->getEM()->getNbCopies()+1);
