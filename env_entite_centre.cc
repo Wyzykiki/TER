@@ -3,6 +3,7 @@
 
 Env_entite_centre::Env_entite_centre(EspeceMoleculaire* ems[], int size, int diam) : Simulation(ems, size){
     diametre = diam;
+    radius = diametre/2;
 
     nb_mols = 0;
     for(int i = 0 ; i < size ; i++) {
@@ -30,7 +31,7 @@ Env_entite_centre::Env_entite_centre(EspeceMoleculaire* ems[], int size, int dia
             y = std::rand()/((RAND_MAX + 1u)/diam);
             z = std::rand()/((RAND_MAX + 1u)/diam);
             } while(grid[x][y][z] != 0);
-            molecules.push_back(new Molecule(ems[i], x, y, z));
+            molecules.push_back(new Molecule(ems[i], x - radius, y - radius, z - radius));
             grid[x][y][z] = molecules.back();
         }
     }
@@ -69,9 +70,9 @@ void Env_entite_centre::run(){
             int dir = std::rand()/((RAND_MAX + 1u)/2);
 
             // On récupère la position de la molécule
-            int newPosX = molecules.at(i)->getX();
-            int newPosY = molecules.at(i)->getY();
-            int newPosZ = molecules.at(i)->getZ();
+            int newPosX = molecules.at(i)->getX() + radius;
+            int newPosY = molecules.at(i)->getY() + radius;
+            int newPosZ = molecules.at(i)->getZ() + radius;
 
             bool hasEncountered = false;
 
@@ -92,7 +93,7 @@ void Env_entite_centre::run(){
                 Molecule* mol_encountered = new Molecule(*molecules.at(i));
 
                 if(axe == 1){
-                    int a = molecules.at(i)->getX() + ((dir==0)?-1:1);
+                    int a = molecules.at(i)->getX() + radius + ((dir==0)?-1:1);
                     while(((dir == 0) ? a >= newPosX : a <= newPosX) && !hasEncountered){
                         hasEncountered = hasEncountered || (grid[a][newPosY][newPosZ] != 0);
                         if(hasEncountered) mol_encountered = (grid[a][newPosY][newPosZ]);
@@ -100,7 +101,7 @@ void Env_entite_centre::run(){
                         else a++;
                     }
                 } else if(axe == 2){
-                    int b = molecules.at(i)->getY() + ((dir==0)?-1:1);
+                    int b = molecules.at(i)->getY() + radius + ((dir==0)?-1:1);
                     while(((dir == 0) ? b >= newPosY : b <= newPosY) && !hasEncountered){
                         hasEncountered = hasEncountered || (grid[newPosX][b][newPosZ] != 0);
                         if(hasEncountered) mol_encountered = (grid[newPosX][b][newPosZ]);
@@ -108,7 +109,7 @@ void Env_entite_centre::run(){
                         else b++;
                     }
                 } else if (axe == 3){
-                    int c = molecules.at(i)->getZ() + ((dir==0)?-1:1);
+                    int c = molecules.at(i)->getZ() + radius + ((dir==0)?-1:1);
                     while(((dir == 0) ? c >= newPosZ : c <= newPosZ) && !hasEncountered){
                         hasEncountered = hasEncountered || (grid[newPosX][newPosY][c] != 0);
                         if(hasEncountered) mol_encountered = (grid[newPosX][newPosY][c]);
@@ -127,32 +128,32 @@ void Env_entite_centre::run(){
 
                                 (*posMolEnc)->getEM()->setNbCopies((*posMolEnc)->getEM()->getNbCopies()-1);
                                 *posMolEnc = new Molecule(molecules.at(i)->getEM()->getReaction(reac)->getProduits()[0], mol_encountered->getX(), mol_encountered->getY(), mol_encountered->getZ());
-                                grid[mol_encountered->getX()][mol_encountered->getY()][mol_encountered->getZ()] = (*posMolEnc);
+                                grid[mol_encountered->getX() + radius][mol_encountered->getY() + radius][mol_encountered->getZ() + radius] = (*posMolEnc);
                                 (*posMolEnc)->getEM()->setNbCopies((*posMolEnc)->getEM()->getNbCopies()+1);
 
-                                grid[molecules.at(i)->getX()][molecules.at(i)->getY()][molecules.at(i)->getZ()] = 0;
+                                grid[molecules.at(i)->getX() + radius][molecules.at(i)->getY() + radius][molecules.at(i)->getZ() + radius] = 0;
                                 molecules.at(i)->getEM()->setNbCopies(molecules.at(i)->getEM()->getNbCopies()-1);
                                 molecules.erase(std::remove(molecules.begin(), molecules.end(), molecules.at(i)), molecules.end());
                             }
                             else {
-                                grid[molecules.at(i)->getX()][molecules.at(i)->getY()][molecules.at(i)->getZ()] = 0;
+                                grid[molecules.at(i)->getX() + radius][molecules.at(i)->getY() + radius][molecules.at(i)->getZ() + radius] = 0;
                                 std::vector<Molecule*>::iterator posMolEnc = std::find_if(molecules.begin(), molecules.end(), [&mol_encountered](Molecule *mol){return mol_encountered->getX() == mol->getX() && mol_encountered->getY() == mol->getY() && mol_encountered->getZ() == mol->getZ();});
                                 (*posMolEnc)->getEM()->setNbCopies((*posMolEnc)->getEM()->getNbCopies()-1);
                                 *posMolEnc = new Molecule(molecules.at(i)->getEM()->getReaction(reac)->getProduits()[0], mol_encountered->getX(), mol_encountered->getY(), mol_encountered->getZ());
                                 (*posMolEnc)->getEM()->setNbCopies((*posMolEnc)->getEM()->getNbCopies()+1);
-                                grid[(*posMolEnc)->getX()][(*posMolEnc)->getY()][(*posMolEnc)->getZ()] = *posMolEnc;
+                                grid[(*posMolEnc)->getX() + radius][(*posMolEnc)->getY() + radius][(*posMolEnc)->getZ() + radius] = *posMolEnc;
                                 molecules.at(i)->getEM()->setNbCopies(molecules.at(i)->getEM()->getNbCopies()-1);
                                 if(axe == 1) {
                                     molecules.at(i) = new Molecule(molecules.at(i)->getEM()->getReaction(reac)->getProduits()[1], mol_encountered->getX()+dir+(dir-1), mol_encountered->getY(), mol_encountered->getZ());
-                                    grid[mol_encountered->getX()+dir+(dir-1)][mol_encountered->getY()][mol_encountered->getZ()] = molecules.at(i);
+                                    grid[mol_encountered->getX()+dir+(dir-1) + radius][mol_encountered->getY() + radius][mol_encountered->getZ() + radius] = molecules.at(i);
                                 }
                                 else if(axe == 2) {
                                     molecules.at(i) = new Molecule(molecules.at(i)->getEM()->getReaction(reac)->getProduits()[1], mol_encountered->getX(), mol_encountered->getY()+dir+(dir-1), mol_encountered->getZ());
-                                    grid[mol_encountered->getX()][mol_encountered->getY()+dir+(dir-1)][mol_encountered->getZ()] = molecules.at(i);
+                                    grid[mol_encountered->getX() + radius][mol_encountered->getY()+dir+(dir-1) + radius][mol_encountered->getZ() + radius] = molecules.at(i);
                                 }
                                 else if(axe == 3) {
                                     molecules.at(i) = new Molecule(molecules.at(i)->getEM()->getReaction(reac)->getProduits()[1], mol_encountered->getX(), mol_encountered->getY(), mol_encountered->getZ()+dir+(dir-1));
-                                    grid[mol_encountered->getX()][mol_encountered->getY()][mol_encountered->getZ()+dir+(dir-1)] = molecules.at(i);
+                                    grid[mol_encountered->getX() + radius][mol_encountered->getY() + radius][mol_encountered->getZ()+dir+(dir-1) + radius] = molecules.at(i);
                                 }
                                 molecules.at(i)->getEM()->setNbCopies(molecules.at(i)->getEM()->getNbCopies()+1);
                             }
@@ -161,8 +162,8 @@ void Env_entite_centre::run(){
                 }
                 //si c'est bon elle se deplace
                 else if(grid[newPosX][newPosY][newPosZ] == 0){
-                    grid[molecules.at(i)->getX()][molecules.at(i)->getY()][molecules.at(i)->getZ()] = 0;
-                    molecules.at(i)->setPos(newPosX, newPosY, newPosZ);
+                    grid[molecules.at(i)->getX() + radius][molecules.at(i)->getY() + radius][molecules.at(i)->getZ() + radius] = 0;
+                    molecules.at(i)->setPos(newPosX - radius, newPosY - radius, newPosZ - radius);
                     grid[newPosX][newPosY][newPosZ] = molecules.at(i);
                 }
             }
@@ -180,31 +181,31 @@ void Env_entite_centre::run(){
                         bool willReact = ((float) (std::rand()/((RAND_MAX + 1u)/1000))/1000) <= reaction_assoc.at(x)->getProba();
                         if(willReact) {
                             if(reaction_assoc.at(x)->getNbProduits() == 2) {
-                                int a = molecules.at(i)->getX();
-                                int b = molecules.at(i)->getY();
-                                int c = molecules.at(i)->getZ();
+                                int a = molecules.at(i)->getX() + radius;
+                                int b = molecules.at(i)->getY() + radius;
+                                int c = molecules.at(i)->getZ() + radius;
 
-                                if(axe == 1 && a > 0 && a < diametre - 1 && grid[a - (dir + (dir-1))][molecules.at(i)->getY()][molecules.at(i)->getZ()] == 0) 
+                                if(axe == 1 && a > 0 && a < diametre - 1 && grid[a - (dir + (dir-1))][molecules.at(i)->getY() + radius][molecules.at(i)->getZ() + radius] == 0) 
                                     a -= (dir + (dir-1));
-                                if(axe == 1 && a > 0 && a < diametre - 1 && grid[a + (dir + (dir-1))][molecules.at(i)->getY()][molecules.at(i)->getZ()] == 0) 
+                                else if(axe == 1 && a > 0 && a < diametre - 1 && grid[a + (dir + (dir-1))][molecules.at(i)->getY() + radius][molecules.at(i)->getZ() + radius] == 0) 
                                     a += (dir + (dir-1));
-                                else if(axe == 2 && b > 0 && b < diametre - 1 && grid[molecules.at(i)->getX()][b - (dir + (dir-1))][molecules.at(i)->getZ()] == 0) 
+                                else if(axe == 2 && b > 0 && b < diametre - 1 && grid[molecules.at(i)->getX() + radius][b - (dir + (dir-1))][molecules.at(i)->getZ() + radius] == 0) 
                                     b -= (dir + (dir-1));
-                                else if(axe == 2 && b > 0 && b < diametre - 1 && grid[molecules.at(i)->getX()][b + (dir + (dir-1))][molecules.at(i)->getZ()] == 0) 
+                                else if(axe == 2 && b > 0 && b < diametre - 1 && grid[molecules.at(i)->getX() + radius][b + (dir + (dir-1))][molecules.at(i)->getZ() + radius] == 0) 
                                     b += (dir + (dir-1));
-                                else if(axe == 3 && c > 0 && c < diametre - 1 && grid[molecules.at(i)->getX()][molecules.at(i)->getY()][c - (dir + (dir-1))] == 0) 
+                                else if(axe == 3 && c > 0 && c < diametre - 1 && grid[molecules.at(i)->getX() + radius][molecules.at(i)->getY() + radius][c - (dir + (dir-1))] == 0) 
                                     c -= (dir + (dir-1));
-                                else if(axe == 3 && c > 0 && c < diametre - 1 && grid[molecules.at(i)->getX()][molecules.at(i)->getY()][c + (dir + (dir-1))] == 0) 
+                                else if(axe == 3 && c > 0 && c < diametre - 1 && grid[molecules.at(i)->getX() + radius][molecules.at(i)->getY() + radius][c + (dir + (dir-1))] == 0) 
                                     c += (dir + (dir-1));
 
-                                molecules.push_back(new Molecule(reaction_assoc.at(x)->getProduits()[1], a, b, c));
+                                molecules.push_back(new Molecule(reaction_assoc.at(x)->getProduits()[1], a - radius, b - radius, c - radius));
                                 molecules.back()->getEM()->setNbCopies(molecules.back()->getEM()->getNbCopies()+1);
                                 grid[a][b][c] = molecules.back();
                             }
                             molecules.at(i)->getEM()->setNbCopies(molecules.at(i)->getEM()->getNbCopies()-1);
                             molecules.at(i) = new Molecule(reaction_assoc.at(x)->getProduits()[0], molecules.at(i)->getX(), molecules.at(i)->getY(), molecules.at(i)->getZ());
                             molecules.at(i)->getEM()->setNbCopies(molecules.at(i)->getEM()->getNbCopies()+1);
-                            grid[molecules.at(i)->getX()][molecules.at(i)->getY()][molecules.at(i)->getZ()] = molecules.at(i);
+                            grid[molecules.at(i)->getX() + radius][molecules.at(i)->getY() + radius][molecules.at(i)->getZ() + radius] = molecules.at(i);
                             hasReact = true;
                         }
                     }
