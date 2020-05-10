@@ -3,13 +3,15 @@
 
 Env_entite_centre::Env_entite_centre(EspeceMoleculaire* ems[], int size, float diam) : Simulation(ems, size){
     diametre = diam * 100;
-    radius = diametre/2;
+    radius = diametre/2;        // le rayon nous permettra de centrer les molecules autours de (0,0,0) pour l'affichage
 
+    // on calcule le nombre total de molecules
     nb_mols = 0;
     for(int i = 0 ; i < size ; i++) {
         nb_mols += ems[i]->getNbCopies();
     }
 
+    // initialisation de l'espace avec des pointeurs nuls puisqu'il n'existe pas encore de molecule
     grid = new Molecule***[diametre];
     for(int i = 0 ; i < diametre ; i++){
         grid[i] = new Molecule**[diametre];
@@ -23,6 +25,7 @@ Env_entite_centre::Env_entite_centre(EspeceMoleculaire* ems[], int size, float d
  
     srand(time(NULL));
 
+    // on cree toutes les molecules avec des positions aleatoires dans l'environnement
     for(int i = 0; i < size ; i++){
         for(int j = 0 ; j < ems[i]->getNbCopies() ; j++){
             int x, y, z;
@@ -36,6 +39,7 @@ Env_entite_centre::Env_entite_centre(EspeceMoleculaire* ems[], int size, float d
         }
     }
 
+    // on melange toutes les molecules pour ne pas qu'il y ait un deroulement espece par espece mais que ce soit heterogene
     shuffle (molecules.begin(), molecules.end(), std::default_random_engine((unsigned) time(NULL)));
 }
 
@@ -50,20 +54,7 @@ void Env_entite_centre::run(){
 
     while (nEpoch<10000){
         for(int i = 0 ; i < nb_mols ; i++) {
-            //on calcule un deplacement aleatoire
-            
-            /*float tauxX = std::rand();
-            float tauxY = std::rand();
-            float tauxZ = std::rand();
-
-            tauxX = tauxX / (tauxX + tauxY + tauxZ);
-            tauxY = tauxY / (tauxX + tauxY + tauxZ);
-            tauxZ = tauxZ / (tauxX + tauxY + tauxZ);
-
-            int moveX = molecules.at(i).getEM()->getVitesse() * tauxX;
-            int moveY = molecules.at(i).getEM()->getVitesse() * tauxY;
-            int moveZ = molecules.at(i).getEM()->getVitesse() * tauxZ;*/
-
+            // on calcule un deplacement aleatoire
             // la molecule ne se deplace que sur un axe durant une periode, on choisi donc son axe et calcule se nouvelle position
             int axe = 1 + std::rand()/((RAND_MAX + 1u)/3);
             // On choisi si elle "avance" ou "recule" sur cet axe : 0 elle recule, 1 elle avance
@@ -119,10 +110,11 @@ void Env_entite_centre::run(){
                 }
                 //chance de reagir en fonction de molecule croisee et proba
                 if(hasEncountered){
-                    int reac = molecules.at(i)->getEM()->getPosActualReaction(mol_encountered->getEM());
+                    int reac = molecules.at(i)->getEM()->getPosActualReaction(mol_encountered->getEM());    // regarde si il existe une reaction entre les especes des deux molecules
                     if(reac != -1){
-                        bool willReact = ((float) (std::rand()/((RAND_MAX + 1u)/1000))/1000) <= molecules.at(i)->getEM()->getReaction(reac)->getProba();
+                        bool willReact = ((float) (std::rand()/((RAND_MAX + 1u)/1000))/1000) <= molecules.at(i)->getEM()->getReaction(reac)->getProba();    // calcule si la reaction va avoir lieu en fonction de la probabilite
                         if(willReact){
+                            // reaction se fait en ne donnant qu'un produit
                             if(molecules.at(i)->getEM()->getReaction(reac)->getNbProduits() == 1) {
                                 std::vector<Molecule*>::iterator posMolEnc = std::find_if(molecules.begin(), molecules.end(), [&mol_encountered](Molecule *mol){return mol_encountered->getX() == mol->getX() && mol_encountered->getY() == mol->getY() && mol_encountered->getZ() == mol->getZ();});
 
@@ -135,6 +127,7 @@ void Env_entite_centre::run(){
                                 molecules.at(i)->getEM()->setNbCopies(molecules.at(i)->getEM()->getNbCopies()-1);
                                 molecules.erase(std::remove(molecules.begin(), molecules.end(), molecules.at(i)), molecules.end());
                             }
+                            // reaction se fait en donnant deux produits
                             else {
                                 grid[molecules.at(i)->getX() + radius][molecules.at(i)->getY() + radius][molecules.at(i)->getZ() + radius] = 0;
                                 std::vector<Molecule*>::iterator posMolEnc = std::find_if(molecules.begin(), molecules.end(), [&mol_encountered](Molecule *mol){return mol_encountered->getX() == mol->getX() && mol_encountered->getY() == mol->getY() && mol_encountered->getZ() == mol->getZ();});
@@ -160,7 +153,7 @@ void Env_entite_centre::run(){
                         }
                     }
                 }
-                //si c'est bon elle se deplace
+                // si elle ne ragit pas en chemin elle se deplace sur la case desiree
                 else if(grid[newPosX][newPosY][newPosZ] == 0){
                     grid[molecules.at(i)->getX() + radius][molecules.at(i)->getY() + radius][molecules.at(i)->getZ() + radius] = 0;
                     molecules.at(i)->setPos(newPosX - radius, newPosY - radius, newPosZ - radius);
@@ -170,16 +163,18 @@ void Env_entite_centre::run(){
             // Si n'a pas réagi avec une autre espèce, a toujours la possibilité de réagir tout seul
             if(!hasEncountered){
                 std::vector<Reaction*> reaction_assoc;
-                reaction_assoc = *(molecules.at(i)->getEM()->getReactions());
+                reaction_assoc = *(molecules.at(i)->getEM()->getReactions());       // on recupere l'ensemble des reactions dans lesquels la molecule peut intervenir
                 shuffle (reaction_assoc.begin(), reaction_assoc.end(), std::default_random_engine((unsigned) time(NULL)));
 
                 int x = 0;
                 bool hasReact = false;
 
+                // on regarde si la molecule reagira seule
                 while (x < reaction_assoc.size() && !hasReact) {
                     if(reaction_assoc.at(x)->getNbReactifs() == 1) {
                         bool willReact = ((float) (std::rand()/((RAND_MAX + 1u)/1000))/1000) <= reaction_assoc.at(x)->getProba();
                         if(willReact) {
+                            // si se transforme en deux produits
                             if(reaction_assoc.at(x)->getNbProduits() == 2) {
                                 int a = molecules.at(i)->getX() + radius;
                                 int b = molecules.at(i)->getY() + radius;
@@ -212,7 +207,7 @@ void Env_entite_centre::run(){
                     x++;
                 }
             }
-            nb_mols = molecules.size();
+            nb_mols = molecules.size();     // on actualise le nombre de molecules total existante
         }
 
         nEpoch++;
