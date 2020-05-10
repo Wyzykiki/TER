@@ -22,6 +22,12 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+
+#include "especemoleculaire.h"
+#include "molecule.h"
+#include "simulation.h"
+#include "env_entite_centre.h"
+
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #else
@@ -169,15 +175,12 @@ inline void normalize(Vector& v)
 #endif
 
 
-// dimensions de la fenêtre.
+// dimensions de la fenï¿½tre.
 static int	window_width = 1024;
 static int	window_height = 768;
 
 #define RAYON_DEF	50
 
-// le rayon de la vésicule.
-
-static int		rayon = RAYON_DEF;
 
 // fonte d'affichage.
 static int		fontheight = 20;	// hauteur.
@@ -190,7 +193,7 @@ static int		fontascent = 20;	// et ligne de base de la fonte d'affichage.
 static GLuint	axeList = 0;
 static GLuint	helpList = 0;
 
-// état initial de l'observateur.
+// ï¿½tat initial de l'observateur.
 #define	DEF_PX		0.
 #define DEF_PY		0.
 #define DEF_PZ		3600.	// 80.
@@ -249,64 +252,23 @@ static bool		diffusion_only = false;
 static Vector	center, icenter;
 // l'observateur.
 static Vector	obs (DEF_PX, DEF_PY, DEF_PZ), iobs;
-// molécule actuellement sélectionnée.
+// molï¿½cule actuellement sï¿½lectionnï¿½e.
 static Vector	selection (0., 0., 0.);
 
-/*
- *	Espèce moléculaire.
- */
 
-class EspeceMol {
-public:
-	int	_r, _g, _b;		// couleurs.
-	int	_diameter;		// diamètre.
-	int	_num_type;		// type.
-};
+extern File_vars parse(char*);
 
-/*
- *	Une molécule
- */
+File_vars* init;
 
-class Molecule {
-public:	
-	Molecule*	_next;		// pointeur vers la molécule suicante.
-	EspeceMol*	_type;		// le type de molécule.
-	float		_x, _y, _z;	// coordonnées réelles de la molécule.
-};
+// Molecule** molecules;
+std::vector<Molecule*> molecules;
 
-static EspeceMol
-	Esp_1 = {
-		200, 200, 100,
-		4,
-		1
-	},
-	Esp_2 = {
-		30, 200, 80,
-		7,
-		2
-	};
+Env_entite_centre* env;
 
-static Molecule
-	m1 = {
-		0,
-		&Esp_1,
-		10., 10., 10.
-	},
-	m2 = {
-		&m1,
-		&Esp_1,
-		12., 0., 20.
-	},
-	m3 = {
-		&m2,
-		&Esp_2,
-		-12., -10., -20.
-	};
-
-static Molecule*	les_molecules = &m3;	// tête de liste des molécules.
+int rayon = 0;
 
 /*
- *	Établit le point de vue initial de l'observateur.
+ *	ï¿½tablit le point de vue initial de l'observateur.
  */
 
 static void init_observer (void) {
@@ -339,9 +301,9 @@ inline static int get_current_time (void)
 }
 
 /*
- *	Représenter les molécules par de belles sphères éclairées
- *	sous forme de texture plaqués sur un carré (qui sera toujours
- *	affiché de face).
+ *	Reprï¿½senter les molï¿½cules par de belles sphï¿½res ï¿½clairï¿½es
+ *	sous forme de texture plaquï¿½s sur un carrï¿½ (qui sera toujours
+ *	affichï¿½ de face).
  */
 
 static void make_sphere_tex ()
@@ -360,7 +322,7 @@ static void make_sphere_tex ()
 			sphereImage[i][j][1] = (GLubyte) (dist < (RADIUS-2)*(RADIUS-2)) ? 255 : 0;
 		}
 	}
-	glAlphaFunc (GL_GREATER, 0);	// pour masquer les bords des carrés.
+	glAlphaFunc (GL_GREATER, 0);	// pour masquer les bords des carrï¿½s.
 	glEnable (GL_ALPHA_TEST);		// et n'afficher que le cercle au centre.
 
 	glPixelStorei (GL_UNPACK_ALIGNMENT, 1);
@@ -374,7 +336,7 @@ static void make_sphere_tex ()
 					DIAMETER, DIAMETER,
 					GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, sphereImage);
 
-	// presque la même, mais juste pour avoir un disque.
+	// presque la mï¿½me, mais juste pour avoir un disque.
 	for (i = 0; i < DIAMETER; i++) {
 		for (j = 0; j < DIAMETER; j++) {
 			int	dist = (RADIUS-i)*(RADIUS-i) + (RADIUS-j)*(RADIUS-j);
@@ -397,12 +359,12 @@ static void make_sphere_tex ()
 
 static void quad_draw (Molecule* m)
 {
-	EspeceMol*	v = m -> _type;
-	Vector	s (m -> _x, m -> _y, m -> _z);
-	float	size = v -> _diameter > .3 ? v -> _diameter / 2. : v -> _diameter;
+	EspeceMoleculaire*	esp = m->getEM();
+	Vector	s (m->getX(), m->getY(), m->getZ());
+	float	size = esp->getTaille() > .3 ? esp->getTaille() / 2. : esp->getTaille();
 
-	// afficher la molécule.
-	glColor3ub (v -> _r, v -> _g, v -> _b);
+	// afficher la molï¿½cule.
+	glColor3ub (esp->getR(), esp->getG(), esp->getB());
 	glPushMatrix ();
 
 	glTranslatef (s.x, s.y, s.z);
@@ -419,18 +381,19 @@ static void quad_draw (Molecule* m)
 }
 
 /*
- *	Affiche les molécules
+ *	Affiche les molï¿½cules
  */
 
-static void display_molecules ()
+static void display_molecules ()// appel de l'affichage sur toutes les molecules
 {
 	Molecule*	p;
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture (GL_TEXTURE_2D, Sphere_tex);
 	glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	for (p = les_molecules; p != 0; p = p -> _next)
-		quad_draw (p);
+	// for (p = les_molecules; p != 0; p = p -> _next)
+	for (int i=0; i<molecules.size(); i++)
+		quad_draw (molecules[i]);
 	glDisable(GL_TEXTURE_2D);
 }
 
@@ -450,21 +413,21 @@ static void draw_membrane (float ln, float th, float x, float y, float z, float 
 
 	glColor4f (red, .45, .6, 0.15);
 	glPushMatrix ();
-	// afficher le pôle -X
+	// afficher le pï¿½le -X
 	glTranslatef (x-(ln+TAU), y, z);
 	glEnable (GL_CLIP_PLANE0);
 	glClipPlane (GL_CLIP_PLANE0, clip);
 	glRotatef (90., 0., 1., 0.);
 	gluSphere (quad, (th+2*TAU), 32, 32);
 	glRotatef (-90., 0., 1., 0.);
-	// afficher le pôle +X
+	// afficher le pï¿½le +X
 	glTranslatef (2*(ln+TAU), 0., 0.);
 	clip [0] = 1.;
 	glClipPlane (GL_CLIP_PLANE0, clip);
 	glRotatef (90., 0., 1., 0.);
 	gluSphere (quad, (th+2*TAU), 32, 32);
 	glDisable (GL_CLIP_PLANE0);
-	// afficher le cylindre médian.
+	// afficher le cylindre mï¿½dian.
 	glTranslatef (0., 0., -2*(ln+TAU));
 	gluCylinder (quad, th+2*TAU, th+2*TAU, 2*(ln+TAU), 64, 32);
 	gluDeleteQuadric (quad);
@@ -474,7 +437,7 @@ static void draw_membrane (float ln, float th, float x, float y, float z, float 
 
 
 /*
- *	Crée une GlList avec le décor.
+ *	Crï¿½e une GlList avec le dï¿½cor.
  */
 
 static void make_scenery ()
@@ -516,17 +479,19 @@ static bool stopped = true;
 
 static void diff_react (void)
 {
-#if 0
+#if 1
 	// ne prendre ni trop grand (pour laisser du temps aux interactions)
 	// ni trop petit (pour ne pas ramer)
 	int	gen_incr = 50;
 
 	// appeler la fonction de calcul de gen_incr pas de temps.
-	compute (gen_incr);
-#endif
-	// réafficher.
-	if (diffusion_only)
+	env->run();
+	molecules = env->getMolecules();
+	std::cout<<"alo "<<std::endl;
 		glutPostRedisplay ();
+#endif
+	// rï¿½afficher.
+	// if (diffusion_only)
 }
 
 static void menu (int m)
@@ -561,15 +526,15 @@ static void mouse (int button, int state, int x, int y)
 		lasty = y;
 		switch (button) {
 			case GLUT_LEFT_BUTTON:
-				// sélection ou rotation.
+				// sï¿½lection ou rotation.
 				switch (mod) {
-					// déplacement à la souris.
+					// dï¿½placement ï¿½ la souris.
 					case GLUT_ACTIVE_CTRL:
 						currentx = &obsx;
 						currenty = &obsz;
 						return;
 
-					// sélectionner le pivot de rotation.
+					// sï¿½lectionner le pivot de rotation.
 					case 0:
 						currentx = &site;
 						currenty = &azimuth;
@@ -662,7 +627,7 @@ static void ellipse (float x1, float y1, float x2, float y2, bool clockwise)
 }
 
 /*
- *	Dessine un coin supérieur gauche style Star Trek TNG.
+ *	Dessine un coin supï¿½rieur gauche style Star Trek TNG.
  */
 
 static void draw_ul_corner (float x1, float y1, float width,
@@ -672,7 +637,7 @@ static void draw_ul_corner (float x1, float y1, float width,
 	ellipse (x1, y1, x2, y2, true);
 	ellipse (x1+width, y1, x2, y2+height, false);
 	glEnd ();
-	// le bord antialiasé.
+	// le bord antialiasï¿½.
 	glBegin (GL_LINE_STRIP);
 	ellipse (x1, y1, x2, y2, true);
 	ellipse (x1+width, y1, x2, y2+height, false);
@@ -692,7 +657,7 @@ static void draw_rectangle (float x, float y, float width, float height)
 	glVertex3f (x+width, y+height, 0.);
 	glVertex3f (x, y+height, 0.);
 	glEnd ();
-	// le bord antialiasé.
+	// le bord antialiasï¿½.
 	glBegin (GL_LINE_STRIP);
 	glVertex3f (x, y, 0.);
 	glVertex3f (x+width, y, 0.);
@@ -760,7 +725,7 @@ static inline void set_observer (float x =0.)
 }
 
 /*
- *	Établit la projection en 2D.
+ *	ï¿½tablit la projection en 2D.
  */
 
 static inline void set_projection (void)
@@ -771,7 +736,7 @@ static inline void set_projection (void)
 	glViewport (0, 0, window_width, window_height);
 }
 
-// fonction de réaffichage.
+// fonction de rï¿½affichage.
 
 static void display ()
 {
@@ -787,7 +752,7 @@ static void display ()
 	set_projection ();
 	// placer l'observateur.
 	set_observer ();
-	// afficher les molécules.
+	// afficher les molï¿½cules.
 	display_molecules ();
 	glCallList (axeList);
 	draw_scenery ();
@@ -870,14 +835,14 @@ static void timer (int)
 	static float	accel_std = 0.0;
 	static float	accel_fast = 0.0;
 	static float	accel;
-	// les états de l'automate.
+	// les ï¿½tats de l'automate.
 	static enum {
 		MOVE_LEFT = -1, STANDARD, MOVE_RIGHT,
 		FAST_LEFT, FAST_RIGHT,
 		FORWARD, BACKWARD, FAST_FORWARD, FAST_BACKWARD,
 		UP, DOWN, FAST_UP, FAST_DOWN
 	} state = STANDARD;
-	// fixer le facteur d'accélération en fonction du frame-rate.
+	// fixer le facteur d'accï¿½lï¿½ration en fonction du frame-rate.
 	if (accel_std == 0.) {
 		accel_std = 1.0;
 		accel_fast = 4. * accel_std;
@@ -922,7 +887,7 @@ static void timer (int)
 			} else
 				accel = accel_fast;
 			// fall through.
-		case MOVE_RIGHT:		// décalé à droite.
+		case MOVE_RIGHT:		// dï¿½calï¿½ ï¿½ droite.
 			if (!step_right) {
 				state = STANDARD;
 				return;
@@ -941,7 +906,7 @@ static void timer (int)
 			} else
 				accel = accel_fast;
 			// fall through.
-		case MOVE_LEFT:	// décalé à gauche.
+		case MOVE_LEFT:	// dï¿½calï¿½ ï¿½ gauche.
 			if (!step_left) {
 				state = STANDARD;
 				return;
@@ -1033,7 +998,7 @@ static void timer (int)
 }
 
 /*
- *	Traite les événements du clavier.
+ *	Traite les ï¿½vï¿½nements du clavier.
  */
 
 static void keyboard (unsigned char key, int x, int y)
@@ -1059,7 +1024,7 @@ static void keyboard (unsigned char key, int x, int y)
 			glutPostRedisplay ();
 			break;
 
-		case '\b':		// rétablit les conditions initiales.
+		case '\b':		// rï¿½tablit les conditions initiales.
 			init_observer ();
 			glutPostRedisplay ();
 			break;
@@ -1068,6 +1033,17 @@ static void keyboard (unsigned char key, int x, int y)
 
 int main (int argc, char** argv)
 {
+
+// init = new File_vars(parse("osc-4R.txt"));
+init = new File_vars(parse("file.sim"));
+
+env = new Env_entite_centre(init->especes, init->size, init->diametre, 50);
+
+
+molecules = env->getMolecules();
+rayon = 0.01*1000/2.;
+
+
 	int				mask = GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH;
 
 	glutInit (&argc, argv);
@@ -1093,7 +1069,7 @@ int main (int argc, char** argv)
 	helpList = glGenLists (3);
 	// faire les display lists.
 	make_scenery ();
-	// menu popup attaché au bouton 2.
+	// menu popup attachï¿½ au bouton 2.
 	glutCreateMenu (menu);
 	glutAddMenuEntry ("Hide axes", 0);
 	glutAddMenuEntry ("Show axes", 1);
@@ -1102,7 +1078,7 @@ int main (int argc, char** argv)
 	glutAttachMenu (GLUT_MIDDLE_BUTTON);
 
 	glutTimerFunc (25, timer, 0);
-	// la texture de sphère.
+	// la texture de sphï¿½re.
 	make_sphere_tex ();
 	init_observer ();
 	glutMainLoop ();

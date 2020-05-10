@@ -1,16 +1,20 @@
 CC=g++ -g
 CXXFLAGS=
 LDFLAGS=
-EXEC=simulation
-SRC= parser.cc lexer.cc especemoleculaire.cc reaction.cc simulation.cc populationCentered.cc molecule.cc env_entite_centre.cc entMain.cc
+EXEC=popCentre entCentre affiche
+SRC= parser.cc lexer.cc especemoleculaire.cc reaction.cc simulation.cc populationCentered.cc molecule.cc env_entite_centre.cc
 OBJ= $(SRC:.cc=.o)
 
 all: $(EXEC)
 
-simulation: $(OBJ)
+affiche: $(OBJ) Affiche.o
+	$(CC) -o $@ $^ -lglut -lGLU -lGL
+
+popCentre: $(OBJ) popMain.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
-%.cc: %.h
+entCentre: $(OBJ) entMain.o
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 parser.cc: parser.y especemoleculaire.h reaction.h simulation.h molecule.h
 	bison -d -o $@ $<
@@ -18,7 +22,7 @@ parser.cc: parser.y especemoleculaire.h reaction.h simulation.h molecule.h
 lexer.cc: lexer.l parser.hh
 	flex -o$@ $<
 
-%.o : %.cc
+%.o : %.cc %.h
 	$(CC) -o $@ -c $< $(CXXFLAGS)
 
 clean:

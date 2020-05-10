@@ -1,11 +1,12 @@
 #include "env_entite_centre.h"
 #include <stdio.h>
 
-Env_entite_centre::Env_entite_centre(EspeceMoleculaire* ems[], int size, float diam) : Simulation(ems, size){
+Env_entite_centre::Env_entite_centre(EspeceMoleculaire* ems[], int size, float diam, int stepMax) : Simulation(ems, size){
     diametre = diam * 100;
     radius = diametre/2;        // le rayon nous permettra de centrer les molecules autours de (0,0,0) pour l'affichage
 
-    // on calcule le nombre total de molecules
+    this->stepMax = stepMax;
+
     nb_mols = 0;
     for(int i = 0 ; i < size ; i++) {
         nb_mols += ems[i]->getNbCopies();
@@ -49,10 +50,16 @@ Env_entite_centre::~Env_entite_centre() {
 
 
 void Env_entite_centre::run(){
+    
+
+    // std::cout<<"alo "<<molecules[0]->getX()<<" "<<molecules[0]->getY()<<" "<<molecules[0]->getZ()<<std::endl;
+    int step=0;
+
     exportCSV();
     srand(time(NULL));
 
-    while (nEpoch<10000){
+    while (step<this->stepMax){
+        step++;
         for(int i = 0 ; i < nb_mols ; i++) {
             // on calcule un deplacement aleatoire
             // la molecule ne se deplace que sur un axe durant une periode, on choisi donc son axe et calcule se nouvelle position

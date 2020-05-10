@@ -177,6 +177,26 @@ void checkReaction(EspeceMoleculaire** especes, int n) {
     }
 }
 
+/** Attribue une couleur à chaque espèce */
+void initColors(EspeceMoleculaire** especes, int n) {
+    int batches = (n-1)/7 + 1;
+
+    for (int i=0; i<n; i++) {
+        int color = 255 * (batches - i/7) / batches;
+
+        int nthInBatch = i%7 + 1;
+        int r = nthInBatch & 0b100;
+        int g = nthInBatch & 0b010;
+        int b = nthInBatch & 0b001;
+        if (r)
+            especes[i]->setR(color);
+        if (g)
+            especes[i]->setG(color);
+        if (b)
+            especes[i]->setB(color);
+    }
+}
+
 /** Extrait les donnees utiles du fichier fournie et creer les objets necessaires pour la simulation */
 File_vars parse(char* filename) {
     FILE *file = fopen(filename, "r");
@@ -202,6 +222,8 @@ File_vars parse(char* filename) {
         cerr<<e.what()<<endl;
         exit(-1);
     }
+
+    initColors(especes_arr, esp_size);
 
     Reaction** reactions = new Reaction*[nbReactions];
     for (int i=0; i<nbReactions; i++) {

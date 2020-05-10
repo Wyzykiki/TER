@@ -1,9 +1,13 @@
 .vscode
 *.o
 simulation
+popCentre
+entCentre
 parser.cc
 parser.hh
 lexer.cc
 *.csv
+affiche
 
+*.txt
 testMain.cc

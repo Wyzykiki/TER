@@ -16,13 +16,16 @@ class Env_entite_centre : public Simulation {
         int nb_mols;                            // nombre total de molecules
         int diametre;                           // diametre du environnement
         int radius;                             // rayon de l'environnement
+        int stepMax;
         std::vector<Molecule*> molecules;       // vector contenant  des pointeurs l'ensemble des molecules
         Molecule**** grid;                      // representation de l'espace en 3 dimensions
         EspeceMoleculaire** especes;            // liste de toutes les especes moleculaires presentes dans la simulation
 
     public :
-     Env_entite_centre(EspeceMoleculaire**, int, float);
+     Env_entite_centre(EspeceMoleculaire**, int, float, int);
      ~Env_entite_centre();
 
-     void run();    // deroulement de la simulation
+    std::vector<Molecule*> getMolecules() { return this->molecules; }
+
+     void run();
 };
