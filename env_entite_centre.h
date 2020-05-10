@@ -21,7 +21,7 @@ class Env_entite_centre : public Simulation {
         EspeceMoleculaire** especes;
 
     public :
-     Env_entite_centre(EspeceMoleculaire**, int, int);
+     Env_entite_centre(EspeceMoleculaire**, int, float);
      ~Env_entite_centre();
 
      void run();

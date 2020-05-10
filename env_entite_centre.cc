@@ -1,8 +1,8 @@
 #include "env_entite_centre.h"
 #include <stdio.h>
 
-Env_entite_centre::Env_entite_centre(EspeceMoleculaire* ems[], int size, int diam) : Simulation(ems, size){
-    diametre = diam;
+Env_entite_centre::Env_entite_centre(EspeceMoleculaire* ems[], int size, float diam) : Simulation(ems, size){
+    diametre = diam * 100;
     radius = diametre/2;
 
     nb_mols = 0;
@@ -10,12 +10,12 @@ Env_entite_centre::Env_entite_centre(EspeceMoleculaire* ems[], int size, int dia
         nb_mols += ems[i]->getNbCopies();
     }
 
-    grid = new Molecule***[diam];
-    for(int i = 0 ; i < diam ; i++){
-        grid[i] = new Molecule**[diam];
-        for(int j = 0 ; j < diam ; j++){
-            grid[i][j] = new Molecule*[diam];
-            for(int k = 0 ; k < diam ; k++) {
+    grid = new Molecule***[diametre];
+    for(int i = 0 ; i < diametre ; i++){
+        grid[i] = new Molecule**[diametre];
+        for(int j = 0 ; j < diametre ; j++){
+            grid[i][j] = new Molecule*[diametre];
+            for(int k = 0 ; k < diametre ; k++) {
                 grid[i][j][k] = 0;
             }
         }
@@ -27,9 +27,9 @@ Env_entite_centre::Env_entite_centre(EspeceMoleculaire* ems[], int size, int dia
         for(int j = 0 ; j < ems[i]->getNbCopies() ; j++){
             int x, y, z;
             do {
-            x = std::rand()/((RAND_MAX + 1u)/diam);
-            y = std::rand()/((RAND_MAX + 1u)/diam);
-            z = std::rand()/((RAND_MAX + 1u)/diam);
+            x = std::rand()/((RAND_MAX + 1u)/diametre);
+            y = std::rand()/((RAND_MAX + 1u)/diametre);
+            z = std::rand()/((RAND_MAX + 1u)/diametre);
             } while(grid[x][y][z] != 0);
             molecules.push_back(new Molecule(ems[i], x - radius, y - radius, z - radius));
             grid[x][y][z] = molecules.back();
