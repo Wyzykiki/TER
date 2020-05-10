@@ -1,9 +1,11 @@
 #include "env_entite_centre.h"
 #include <stdio.h>
 
-Env_entite_centre::Env_entite_centre(EspeceMoleculaire* ems[], int size, int diam) : Simulation(ems, size){
+Env_entite_centre::Env_entite_centre(EspeceMoleculaire* ems[], int size, int diam, int stepMax) : Simulation(ems, size){
     diametre = diam;
     radius = diametre/2;
+
+    this->stepMax = stepMax;
 
     nb_mols = 0;
     for(int i = 0 ; i < size ; i++) {
@@ -48,17 +50,13 @@ void Env_entite_centre::run(){
     
 
     // std::cout<<"alo "<<molecules[0]->getX()<<" "<<molecules[0]->getY()<<" "<<molecules[0]->getZ()<<std::endl;
-    int a=0;
+    int step=0;
 
     exportCSV();
     srand(time(NULL));
 
-<<<<<<< HEAD
-    while (a<50){
-        a++;
-=======
-    while (nEpoch<10000){
->>>>>>> dc73ba03ddf8439b910784d060d21919d80efba9
+    while (step<this->stepMax){
+        step++;
         for(int i = 0 ; i < nb_mols ; i++) {
             //on calcule un deplacement aleatoire
             

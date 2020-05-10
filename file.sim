@@ -1,5 +1,5 @@
 espece E, s, p, Es;
-diametre = 15.0;
+diametre = 60.0;
 //diametre = 1.0;
 taille(E) = 7;
 vitesse(E) = 1.3;

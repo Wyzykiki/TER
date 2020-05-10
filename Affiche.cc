@@ -181,9 +181,6 @@ static int	window_height = 768;
 
 #define RAYON_DEF	50
 
-// le rayon de la v�sicule.
-
-// static int		rayon = RAYON_DEF;FIXME:
 
 // fonte d'affichage.
 static int		fontheight = 20;	// hauteur.
@@ -258,27 +255,6 @@ static Vector	obs (DEF_PX, DEF_PY, DEF_PZ), iobs;
 // mol�cule actuellement s�lectionn�e.
 static Vector	selection (0., 0., 0.);
 
-/*
- *	Esp�ce mol�culaire.FIXME:
- */
-
-// class EspeceMol {
-// public:
-// 	int	_r, _g, _b;		// couleurs.
-// 	int	_diameter;		// diam�tre.
-// 	int	_num_type;		// type.
-// };
-
-/*
- *	Une mol�cule
- */
-
-// class Molecule {
-// public:	
-// 	Molecule*	_next;		// pointeur vers la mol�cule suicante.
-// 	EspeceMol*	_type;		// le type de mol�cule.
-// 	float		_x, _y, _z;	// coordonn�es r�elles de la mol�cule.
-// };
 
 extern File_vars parse(char*);
 
@@ -290,38 +266,6 @@ std::vector<Molecule*> molecules;
 Env_entite_centre* env;
 
 int rayon = 0;
-
-
-// static EspeceMol
-// 	Esp_1 = {
-// 		200, 200, 100,
-// 		4,
-// 		1
-// 	},
-// 	Esp_2 = {
-// 		30, 200, 80,
-// 		7,
-// 		2
-// 	};
-
-// static Molecule
-// 	m1 = {
-// 		0,
-// 		&Esp_1,
-// 		10., 10., 10.
-// 	},
-// 	m2 = {
-// 		&m1,
-// 		&Esp_1,
-// 		12., 0., 20.
-// 	},
-// 	m3 = {
-// 		&m2,
-// 		&Esp_2,
-// 		-12., -10., -20.
-// 	};
-
-// static Molecule*	les_molecules = &m3;	// t�te de liste des mol�cules.FIXME:
 
 /*
  *	�tablit le point de vue initial de l'observateur.
@@ -413,11 +357,9 @@ static void make_sphere_tex ()
 					GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, sphereImage);
 }
 
-static void quad_draw (Molecule* m)//FIXME: devrait etre bon
+static void quad_draw (Molecule* m)
 {
-	// std::cout<<m<<std::endl;
 	EspeceMoleculaire*	esp = m->getEM();
-	// std::cout<<esp<<std::endl;
 	Vector	s (m->getX(), m->getY(), m->getZ());
 	float	size = esp->getTaille() > .3 ? esp->getTaille() / 2. : esp->getTaille();
 
@@ -442,7 +384,7 @@ static void quad_draw (Molecule* m)//FIXME: devrait etre bon
  *	Affiche les mol�cules
  */
 
-static void display_molecules ()//FIXME: appel de l'affichage sur toutes les molecules
+static void display_molecules ()// appel de l'affichage sur toutes les molecules
 {
 	Molecule*	p;
 
@@ -537,18 +479,19 @@ static bool stopped = true;
 
 static void diff_react (void)
 {
-#if 1//FIXME:
+#if 1
 	// ne prendre ni trop grand (pour laisser du temps aux interactions)
 	// ni trop petit (pour ne pas ramer)
 	int	gen_incr = 50;
 
 	// appeler la fonction de calcul de gen_incr pas de temps.
 	env->run();
+	molecules = env->getMolecules();
 	std::cout<<"alo "<<std::endl;
+		glutPostRedisplay ();
 #endif
 	// r�afficher.
-	if (diffusion_only)
-		glutPostRedisplay ();
+	// if (diffusion_only)
 }
 
 static void menu (int m)
@@ -1094,19 +1037,12 @@ int main (int argc, char** argv)
 // init = new File_vars(parse("osc-4R.txt"));
 init = new File_vars(parse("file.sim"));
 
-env = new Env_entite_centre(init->especes, init->size, init->diametre);
+env = new Env_entite_centre(init->especes, init->size, init->diametre, 50);
 
-// molecules = new Molecule*[init->size];//TODO: recup le vector de la simu
+
 molecules = env->getMolecules();
 rayon = 0.01*1000/2.;
 
-//TODO: a virer
-// for (int i=0; i<init->size; i++) {
-// 	molecules[i] = new Molecule(init->especes[i]);
-// 	molecules[i]->setX(i*10);
-// 	molecules[i]->setY(i*10);
-// 	molecules[i]->setZ(i*10);
-// }
 
 	int				mask = GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH;
 
