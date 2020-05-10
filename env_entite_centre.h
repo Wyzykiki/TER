@@ -22,7 +22,7 @@ class Env_entite_centre : public Simulation {
         EspeceMoleculaire** especes;
 
     public :
-     Env_entite_centre(EspeceMoleculaire**, int, int, int);
+     Env_entite_centre(EspeceMoleculaire**, int, float, int);
      ~Env_entite_centre();
 
     std::vector<Molecule*> getMolecules() { return this->molecules; }
